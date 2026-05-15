@@ -1,0 +1,169 @@
+/* Move Studio — Design tokens
+   Zen Moderno · Wellness Luxury
+   Palette: warm cream ground, deep forest ink, sage, cream highlights, tan gold accent */
+
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+
+/* Geist via Vercel CDN */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-Variable.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-mono/GeistMono-Variable.woff2') format('woff2');
+}
+
+:root {
+  /* Surfaces */
+  --bg: #faf7f2;
+  --bg-2: #f3eee5;
+  --bg-3: #ece5d7;
+  --white: #fdfcf9;
+  --paper: #ffffff;
+
+  /* Ink */
+  --ink: #1f2a1f;
+  --ink-2: #2d3e2d;
+  --ink-soft: #4a5a48;
+  --muted: #7a7770;
+  --muted-2: #a8a49b;
+
+  /* Accents */
+  --sage: #7a8c6f;
+  --sage-dark: #5d6e54;
+  --sage-soft: #c5cdb9;
+  --cream: #e8dcc4;
+  --cream-soft: #f0e6d4;
+  --tan: #a8956f;
+  --tan-dark: #8a7754;
+  --terracotta: #c87b5a;
+
+  /* Functional */
+  --line: rgba(31, 42, 31, 0.08);
+  --line-2: rgba(31, 42, 31, 0.14);
+  --shadow-sm: 0 1px 2px rgba(31, 42, 31, 0.04), 0 1px 1px rgba(31, 42, 31, 0.02);
+  --shadow: 0 4px 16px rgba(31, 42, 31, 0.06), 0 1px 2px rgba(31, 42, 31, 0.04);
+  --shadow-lg: 0 24px 60px -20px rgba(31, 42, 31, 0.18), 0 8px 24px rgba(31, 42, 31, 0.06);
+  --shadow-xl: 0 40px 100px -30px rgba(31, 42, 31, 0.25);
+
+  /* Status */
+  --ok: #5d6e54;
+  --warn: #b8893e;
+  --err: #a85a4a;
+  --info: #5a7da8;
+
+  /* Radii */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-2xl: 40px;
+  --r-pill: 999px;
+
+  /* Type */
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+  --font-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'ss01', 'cv11';
+  text-rendering: optimizeLegibility;
+}
+
+/* Type utilities */
+.t-display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+}
+.t-mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'ss01';
+  letter-spacing: -0.01em;
+}
+.t-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Buttons (shared) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  padding: 12px 22px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: transform .12s ease, background .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  background: var(--ink-2);
+  color: var(--bg);
+}
+.btn-primary:hover { background: #18241a; }
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line-2);
+}
+.btn-ghost:hover { background: rgba(31,42,31,0.04); }
+.btn-soft {
+  background: rgba(45, 62, 45, 0.06);
+  color: var(--ink-2);
+}
+.btn-soft:hover { background: rgba(45, 62, 45, 0.10); }
+
+/* Glass card */
+.glass {
+  background: rgba(253, 252, 249, 0.55);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.6);
+  box-shadow: var(--shadow);
+}
+
+/* Scroll behavior */
+html { scroll-behavior: smooth; }
+
+::selection { background: var(--ink-2); color: var(--bg); }
+
+/* Subtle grain overlay helper */
+.grain::before {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12  0 0 0 0 0.16  0 0 0 0 0.12  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
