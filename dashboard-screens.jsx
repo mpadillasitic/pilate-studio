@@ -36,7 +36,7 @@ window.HomeScreen = function HomeScreen({ go, openReserve, openLicense }) {
 
   return (
     <div className="fade-in">
-      <div className="page-title">Buen día, {_D.user?.firstName || 'Alumna'}.</div>
+      <div className="page-title">Hola, {_D.user?.firstName}.</div>
       <p className="page-sub">
         {nextCls ? 'Tu próxima sesión empieza pronto — todo en orden.' : 'Explorá el calendario y reservá tu próxima clase.'}
       </p>
