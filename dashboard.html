@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Portal Alumno · Lumina Pilates</title>
+<link rel="stylesheet" href="tokens.css"/>
+<link rel="stylesheet" href="dashboard.css"/>
+<style>
+  /* Protección anti-flash antes de que React monte */
+  #app { opacity: 0; transition: opacity .3s ease; }
+  #app.ready { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- ── CDNs ─────────────────────────────────────────────── -->
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- React -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<!-- Babel (transpila JSX en el browser) -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<!-- ── Orden de carga ────────────────────────────────────
+  1. icons.jsx        → componente Icon global
+  2. dashboard-data.js → carga Supabase, construye MOVE_DATA
+  3. dashboard-modals.jsx → modales Reserve / License
+  4. dashboard-screens.jsx → todas las pantallas
+  5. dashboard-app.jsx → root App + ReactDOM.render
+──────────────────────────────────────────────────────── -->
+
+<script type="text/babel" src="icons.jsx"></script>
+<script src="dashboard-data.js"></script>
+<script type="text/babel" src="dashboard-modals.jsx"></script>
+<script type="text/babel" src="dashboard-screens.jsx"></script>
+<script type="text/babel" src="dashboard-app.jsx"></script>
+
+<script>
+  // Mostrar app cuando React termine de montar
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const app = document.getElementById('app');
+      if (app) app.classList.add('ready');
+    }, 300);
+  });
+</script>
+</body>
+</html>
