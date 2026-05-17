@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crear cuenta — Lumina Pilates</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --cream:        #FAF7F2;
+      --warm-white:   #FDFCFA;
+      --stone-light:  #EDE8DE;
+      --stone:        #C4B89A;
+      --stone-dark:   #8C7A5E;
+      --charcoal:     #1C1C1A;
+      --charcoal-mid: #4A4A45;
+      --gold:         #C9A96E;
+      --gold-muted:   #A08545;
+      --gold-light:   #E8D5B0;
+      --sage:         #7A8C74;
+      --sage-pale:    #E8EDE6;
+      --sidebar-bg:   #1a2e1f;
+      --red-soft:     #fdf0ef;
+      --red:          #a83232;
+      --red-border:   #e8b8b8;
+      --green-soft:   #e8f5ee;
+      --green:        #2d7a4f;
+      --green-border: #b8deca;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      min-height: 100%;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--charcoal);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--stone-light); border-radius: 4px; }
+
+    /* ── LAYOUT ── */
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ── PANEL IZQUIERDO — decorativo ── */
+    .panel-left {
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px 52px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Textura sutil */
+    .panel-left::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(201,169,110,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(122,140,116,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Círculo decorativo */
+    .panel-left::after {
+      content: '';
+      position: absolute;
+      right: -120px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      border: 1px solid rgba(196,184,154,0.1);
+    }
+
+    .left-logo {
+      position: relative;
+      z-index: 1;
+    }
+    .left-logo .wordmark {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      color: rgba(250,247,242,0.88);
+    }
+    .left-logo .tagline {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--stone);
+      margin-top: 4px;
+    }
+
+    .left-body {
+      position: relative;
+      z-index: 1;
+    }
+    .left-headline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 42px;
+      font-weight: 300;
+      line-height: 1.15;
+      color: rgba(250,247,242,0.85);
+      margin-bottom: 20px;
+    }
+    .left-headline em {
+      font-style: italic;
+      color: var(--gold);
+    }
+    .left-desc {
+      font-size: 13px;
+      color: rgba(196,184,154,0.7);
+      line-height: 1.7;
+      font-weight: 300;
+      max-width: 340px;
+    }
+
+    .left-features {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: rgba(196,184,154,0.6);
+      font-weight: 300;
+    }
+    .feature-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+
+    /* ── PANEL DERECHO — formulario ── */
+    .panel-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 48px 60px;
+      background: var(--warm-white);
+    }
+
+    .form-header {
+      margin-bottom: 36px;
+    }
+    .form-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      font-weight: 300;
+      color: var(--charcoal);
+      margin-bottom: 6px;
+    }
+    .form-subtitle {
+      font-size: 13px;
+      color: var(--stone-dark);
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
+    /* ── FORM ── */
+    .form { display: flex; flex-direction: column; gap: 0; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--stone-dark);
+      font-weight: 500;
+      margin-bottom: 7px;
+    }
+
+    .form-input {
+      background: var(--cream);
+      border: 1.5px solid var(--stone-light);
+      border-radius: 10px;
+      padding: 11px 14px;
+      color: var(--charcoal);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+    .form-input:focus {
+      border-color: var(--stone);
+      box-shadow: 0 0 0 3px rgba(196,184,154,0.12);
+    }
+    .form-input.error {
+      border-color: var(--red-border);
+      background: var(--red-soft);
+    }
+    .form-input::placeholder { color: var(--stone); }
+
+    .field-error {
+      font-size: 11px;
+      color: var(--red);
+      margin-top: 5px;
+      font-weight: 300;
+      display: none;
+    }
+    .field-error.visible { display: block; }
+
+    /* Password wrapper */
+    .input-wrap { position: relative; }
+    .input-wrap .form-input { padding-right: 42px; }
+    .toggle-pass {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--stone);
+      font-size: 15px;
+      padding: 2px;
+      transition: color 0.15s;
+      line-height: 1;
+    }
+    .toggle-pass:hover { color: var(--charcoal-mid); }
+
+    /* Password strength */
+    .pass-strength {
+      margin-top: 8px;
+      display: none;
+    }
+    .pass-strength.visible { display: block; }
+    .strength-bar {
+      height: 3px;
+      background: var(--stone-light);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 5px;
+    }
+    .strength-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.3s, background 0.3s;
+      width: 0%;
+    }
+    .strength-text {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--stone-dark);
+    }
+
+    /* Divider */
+    .form-divider {
+      height: 1px;
+      background: var(--stone-light);
+      margin: 4px 0 20px;
+    }
+
+    /* Términos */
+    .terms-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .terms-check {
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid var(--stone);
+      border-radius: 4px;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 1px;
+      appearance: none;
+      -webkit-appearance: none;
+      position: relative;
+      transition: all 0.15s;
+      background: var(--cream);
+    }
+    .terms-check:checked {
+      background: var(--charcoal);
+      border-color: var(--charcoal);
+    }
+    .terms-check:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 10px;
+      color: var(--cream);
+      font-weight: 600;
+    }
+    .terms-text {
+      font-size: 12px;
+      color: var(--stone-dark);
+      font-weight: 300;
+      line-height: 1.5;
+    }
+    .terms-text a {
+      color: var(--gold-muted);
+      text-decoration: none;
+    }
+    .terms-text a:hover { text-decoration: underline; }
+
+    /* Submit button */
+    .btn-submit {
+      width: 100%;
+      padding: 13px;
+      background: var(--charcoal);
+      color: var(--cream);
+      border: none;
+      border-radius: 99px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .btn-submit:hover:not(:disabled) {
+      background: #2e2e2b;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(28,28,26,0.18);
+    }
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-submit .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(250,247,242,0.3);
+      border-top-color: var(--cream);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .btn-submit.loading .spinner { display: block; }
+    .btn-submit.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Login link */
+    .login-link {
+      text-align: center;
+      font-size: 12px;
+      color: var(--stone-dark);
+      font-weight: 300;
+    }
+    .login-link a {
+      color: var(--charcoal);
+      font-weight: 500;
+      text-decoration: none;
+      border-bottom: 1px solid var(--stone-light);
+      padding-bottom: 1px;
+      transition: border-color 0.15s;
+    }
+    .login-link a:hover { border-color: var(--charcoal); }
+
+    /* ── ALERT ── */
+    .alert {
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 300;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .alert.visible { display: block; }
+    .alert.error {
+      background: var(--red-soft);
+      border: 1px solid var(--red-border);
+      color: var(--red);
+    }
+    .alert.success {
+      background: var(--green-soft);
+      border: 1px solid var(--green-border);
+      color: var(--green);
+    }
+
+    /* ── SUCCESS STATE ── */
+    .success-state {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+    .success-state.visible { display: block; }
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--green-soft);
+      border: 1px solid var(--green-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin: 0 auto 20px;
+    }
+    .success-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 300;
+      color: var(--charcoal);
+      margin-bottom: 10px;
+    }
+    .success-desc {
+      font-size: 13px;
+      color: var(--stone-dark);
+      font-weight: 300;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .success-desc strong { color: var(--charcoal); font-weight: 500; }
+    .btn-login {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 11px 28px;
+      background: var(--charcoal);
+      color: var(--cream);
+      border-radius: 99px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-login:hover {
+      background: #2e2e2b;
+      transform: translateY(-1px);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      .page { grid-template-columns: 1fr; }
+      .panel-left { display: none; }
+      .panel-right { padding: 40px 28px; justify-content: flex-start; padding-top: 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- PANEL IZQUIERDO -->
+  <div class="panel-left">
+    <div class="left-logo">
+      <div class="wordmark">Lumina Pilates</div>
+      <div class="tagline">Santa Cruz, Bolivia</div>
+    </div>
+
+    <div class="left-body">
+      <div class="left-headline">
+        Tu práctica,<br>
+        <em>tu espacio</em><br>
+        personal.
+      </div>
+      <p class="left-desc">
+        Accedé a tu portal de alumna, reservá clases, revisá tu historial y seguí tu progreso desde cualquier dispositivo.
+      </p>
+    </div>
+
+    <div class="left-features">
+      <div class="feature"><span class="feature-dot"></span>Reserva de clases en tiempo real</div>
+      <div class="feature"><span class="feature-dot"></span>Control de créditos y membresía</div>
+      <div class="feature"><span class="feature-dot"></span>Historial y evaluaciones personales</div>
+      <div class="feature"><span class="feature-dot"></span>Asistente Alma disponible 24/7</div>
+    </div>
+  </div>
+
+  <!-- PANEL DERECHO -->
+  <div class="panel-right">
+
+    <!-- FORM STATE -->
+    <div id="form-state">
+      <div class="form-header">
+        <div class="form-title">Crear tu cuenta</div>
+        <div class="form-subtitle">Completá tus datos para acceder al portal de Lumina Pilates.</div>
+      </div>
+
+      <div class="alert" id="alert"></div>
+
+      <form class="form" id="registro-form" onsubmit="return false">
+
+        <!-- Nombre y Apellido -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre</label>
+            <input
+              type="text"
+              class="form-input"
+              id="f-nombre"
+              placeholder="Tu nombre"
+              autocomplete="given-name"
+            >
+            <div class="field-error" id="err-nombre">Ingresá tu nombre</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Apellido</label>
+            <input
+              type="text"
+              class="form-input"
+              id="f-apellido"
+              placeholder="Tu apellido"
+              autocomplete="family-name"
+            >
+            <div class="field-error" id="err-apellido">Ingresá tu apellido</div>
+          </div>
+        </div>
+
+        <!-- Teléfono -->
+        <div class="form-group">
+          <label class="form-label">Teléfono <span style="color:var(--stone);font-size:10px;letter-spacing:0">(opcional)</span></label>
+          <input
+            type="tel"
+            class="form-input"
+            id="f-tel"
+            placeholder="+591 7 000 0000"
+            autocomplete="tel"
+          >
+        </div>
+
+        <div class="form-divider"></div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <input
+            type="email"
+            class="form-input"
+            id="f-email"
+            placeholder="tu@correo.com"
+            autocomplete="email"
+          >
+          <div class="field-error" id="err-email">Ingresá un correo válido</div>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <div class="input-wrap">
+            <input
+              type="password"
+              class="form-input"
+              id="f-pass"
+              placeholder="Mínimo 8 caracteres"
+              autocomplete="new-password"
+              oninput="checkStrength(this.value)"
+            >
+            <button type="button" class="toggle-pass" onclick="togglePass('f-pass', this)" tabindex="-1">
+              👁
+            </button>
+          </div>
+          <div class="pass-strength" id="pass-strength">
+            <div class="strength-bar">
+              <div class="strength-fill" id="strength-fill"></div>
+            </div>
+            <div class="strength-text" id="strength-text"></div>
+          </div>
+          <div class="field-error" id="err-pass">Mínimo 8 caracteres</div>
+        </div>
+
+        <!-- Confirmar contraseña -->
+        <div class="form-group">
+          <label class="form-label">Confirmar contraseña</label>
+          <div class="input-wrap">
+            <input
+              type="password"
+              class="form-input"
+              id="f-pass2"
+              placeholder="Repetí tu contraseña"
+              autocomplete="new-password"
+            >
+            <button type="button" class="toggle-pass" onclick="togglePass('f-pass2', this)" tabindex="-1">
+              👁
+            </button>
+          </div>
+          <div class="field-error" id="err-pass2">Las contraseñas no coinciden</div>
+        </div>
+
+        <!-- Términos -->
+        <div class="terms-row">
+          <input type="checkbox" class="terms-check" id="f-terms">
+          <label class="terms-text" for="f-terms">
+            Acepto los <a href="#">términos y condiciones</a> y la <a href="#">política de privacidad</a> de Lumina Pilates.
+          </label>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btn-submit" onclick="registrar()">
+          <div class="spinner"></div>
+          <span class="btn-text">Crear mi cuenta</span>
+        </button>
+
+        <div class="login-link">
+          ¿Ya tenés cuenta? <a href="index.html">Ingresá aquí</a>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div class="success-state" id="success-state">
+      <div class="success-icon">✓</div>
+      <div class="success-title">¡Cuenta creada!</div>
+      <div class="success-desc" id="success-desc">
+        Te enviamos un correo de confirmación a <strong id="success-email"></strong>.<br>
+        Revisá tu bandeja y hacé clic en el link para activar tu cuenta.
+      </div>
+      <a href="index.html" class="btn-login">Ir al inicio de sesión →</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SB_URL = 'https://yeaejlbahtkrrsttbprb.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InllYWVqbGJhaHRrcnJzdHRicHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Nzk3NTIsImV4cCI6MjA5NDU1NTc1Mn0.gpzc8sNIifOtfbA02nITKF9od8B9thSXlOyKrlA3ic0';
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+// ── Validación en tiempo real ─────────────────────────────
+document.getElementById('f-pass2').addEventListener('input', function() {
+  const p1 = document.getElementById('f-pass').value;
+  const err = document.getElementById('err-pass2');
+  if (this.value && this.value !== p1) {
+    this.classList.add('error');
+    err.classList.add('visible');
+  } else {
+    this.classList.remove('error');
+    err.classList.remove('visible');
+  }
+});
+
+// ── Password strength ─────────────────────────────────────
+function checkStrength(val) {
+  const wrap = document.getElementById('pass-strength');
+  const fill = document.getElementById('strength-fill');
+  const text = document.getElementById('strength-text');
+
+  if (!val) { wrap.classList.remove('visible'); return; }
+  wrap.classList.add('visible');
+
+  let score = 0;
+  if (val.length >= 8)  score++;
+  if (val.length >= 12) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+
+  const levels = [
+    { pct: '20%', color: '#e07e7e', label: 'Muy débil' },
+    { pct: '40%', color: '#d4a76a', label: 'Débil' },
+    { pct: '60%', color: '#d4c46e', label: 'Regular' },
+    { pct: '80%', color: '#7ecba8', label: 'Buena' },
+    { pct: '100%', color: '#2d7a4f', label: 'Excelente' },
+  ];
+  const lvl = levels[Math.min(score - 1, 4)] || levels[0];
+  fill.style.width = lvl.pct;
+  fill.style.background = lvl.color;
+  text.textContent = lvl.label;
+}
+
+// ── Toggle password visibility ────────────────────────────
+function togglePass(inputId, btn) {
+  const input = document.getElementById(inputId);
+  input.type = input.type === 'password' ? 'text' : 'password';
+  btn.textContent = input.type === 'password' ? '👁' : '🙈';
+}
+
+// ── Registro ──────────────────────────────────────────────
+async function registrar() {
+  // Limpiar errores previos
+  clearErrors();
+  hideAlert();
+
+  const nombre   = document.getElementById('f-nombre').value.trim();
+  const apellido = document.getElementById('f-apellido').value.trim();
+  const tel      = document.getElementById('f-tel').value.trim();
+  const email    = document.getElementById('f-email').value.trim();
+  const pass     = document.getElementById('f-pass').value;
+  const pass2    = document.getElementById('f-pass2').value;
+  const terms    = document.getElementById('f-terms').checked;
+
+  // Validaciones
+  let hasError = false;
+
+  if (!nombre) {
+    showFieldError('f-nombre', 'err-nombre', 'Ingresá tu nombre');
+    hasError = true;
+  }
+  if (!apellido) {
+    showFieldError('f-apellido', 'err-apellido', 'Ingresá tu apellido');
+    hasError = true;
+  }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showFieldError('f-email', 'err-email', 'Ingresá un correo electrónico válido');
+    hasError = true;
+  }
+  if (!pass || pass.length < 8) {
+    showFieldError('f-pass', 'err-pass', 'La contraseña debe tener al menos 8 caracteres');
+    hasError = true;
+  }
+  if (pass !== pass2) {
+    showFieldError('f-pass2', 'err-pass2', 'Las contraseñas no coinciden');
+    hasError = true;
+  }
+  if (!terms) {
+    showAlert('Debés aceptar los términos y condiciones para continuar.', 'error');
+    hasError = true;
+  }
+
+  if (hasError) return;
+
+  // Loading
+  const btn = document.getElementById('btn-submit');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  try {
+    // Crear usuario en Supabase Auth
+    // El trigger crear_perfil_nuevo_usuario creará el perfil automáticamente
+    const { data, error } = await sb.auth.signUp({
+      email,
+      password: pass,
+      options: {
+        data: {
+          nombre,
+          apellido,
+          telefono: tel || null,
+        }
+      }
+    });
+
+    if (error) {
+      if (error.message.includes('already registered') || error.message.includes('already been registered')) {
+        showAlert('Este correo ya tiene una cuenta registrada. <a href="index.html" style="color:var(--red);font-weight:500">Iniciá sesión aquí.</a>', 'error');
+      } else {
+        showAlert('Error al crear la cuenta: ' + error.message, 'error');
+      }
+      return;
+    }
+
+    // Éxito
+    document.getElementById('success-email').textContent = email;
+    document.getElementById('form-state').style.display = 'none';
+    document.getElementById('success-state').classList.add('visible');
+
+  } catch (err) {
+    showAlert('Ocurrió un error inesperado. Intentá de nuevo.', 'error');
+    console.error(err);
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+// Enter para enviar
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && document.getElementById('form-state').style.display !== 'none') {
+    registrar();
+  }
+});
+
+// ── Helpers ───────────────────────────────────────────────
+function showFieldError(inputId, errId, msg) {
+  const input = document.getElementById(inputId);
+  const err   = document.getElementById(errId);
+  input.classList.add('error');
+  err.textContent = msg;
+  err.classList.add('visible');
+}
+
+function clearErrors() {
+  document.querySelectorAll('.form-input').forEach(el => el.classList.remove('error'));
+  document.querySelectorAll('.field-error').forEach(el => el.classList.remove('visible'));
+}
+
+function showAlert(msg, type) {
+  const el = document.getElementById('alert');
+  el.innerHTML = msg;
+  el.className = `alert ${type} visible`;
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function hideAlert() {
+  document.getElementById('alert').className = 'alert';
+}
+</script>
+</body>
+</html>
