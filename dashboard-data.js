@@ -2,7 +2,7 @@
    Conectado a Supabase · reemplaza datos mock */
 
 const SUPABASE_URL = 'https://yeaejlbahtkrrsttbprb.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_LDaK-rW398L5HaIGx-vNPw_bBHBb8RU';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InllYWVqbGJhaHRrcnJzdHRicHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Nzk3NTIsImV4cCI6MjA5NDU1NTc1Mn0.gpzc8sNIifOtfbA02nITKF9od8B9thSXlOyKrlA3ic0';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ── Estado global reactivo ───────────────────────────────────
