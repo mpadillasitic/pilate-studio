@@ -99,7 +99,7 @@ window.LUMINA_LOAD = async () => {
         coach: instructor ? `${instructor.nombre} ${instructor.apellido}` : 'Instructora',
         room: c.tipo === 'reformer' ? 'Estudio A' : c.tipo === 'mat' ? 'Estudio B' : 'Estudio C',
         spots_total: c.capacidad_max,
-        spots_taken: 0, // TODO: contar reservas por clase
+        spots_taken: 0,
         level: c.tipo === 'terapeutico' ? 'Personalizado' : 'Todos los niveles',
         mine: !!reserva,
         status: reserva?.estado || 'disponible',
@@ -186,8 +186,7 @@ window.LUMINA_LOAD = async () => {
     console.error('Error cargando datos:', err);
     window.LUMINA_STATE.error = err.message;
     window.LUMINA_STATE.loading = false;
-    // Usar datos demo si falla
-    usarDatosDemo();
+    construirMoveSinDatos();
     window.LUMINA_NOTIFY();
   }
 };
@@ -198,9 +197,15 @@ function construirMoveData() {
   const perfil = s.perfil;
   const membresia = s.membresia;
 
-  const creditosTotal = membresia?.creditos_total ?? 12;
-  const creditosUsados = membresia?.creditos_usados ?? 0;
-  const creditosRestantes = creditosTotal === null ? 999 : creditosTotal - creditosUsados;
+  // FIX: sin membresía = 0 créditos, nunca hardcodear 12
+  const tieneMem = !!membresia;
+  const creditosTotal  = tieneMem ? (membresia.creditos_total ?? null) : null;
+  const creditosUsados = tieneMem ? (membresia.creditos_usados ?? 0) : 0;
+  const creditosRestantes = !tieneMem
+    ? 0
+    : creditosTotal === null
+      ? '∞'
+      : creditosTotal - creditosUsados;
 
   // Próxima clase del alumno
   const ahora = new Date();
@@ -214,37 +219,66 @@ function construirMoveData() {
 
   window.MOVE_DATA = {
     user: {
-      name: perfil ? `${perfil.nombre} ${perfil.apellido}` : 'Alumna',
-      firstName: perfil?.nombre || 'Alumna',
-      avatar: perfil?.foto_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(perfil?.nombre || 'A')}&background=5C7260&color=fff&size=200`,
+      // FIX: nunca mostrar 'Alumna' hardcodeado, usar nombre real del perfil
+      name: perfil
+        ? `${perfil.nombre}${perfil.apellido ? ' ' + perfil.apellido : ''}`
+        : 'Usuario',
+      firstName: perfil?.nombre || 'Usuario',
+      avatar: perfil?.foto_url ||
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(perfil?.nombre || 'U')}&background=5C7260&color=fff&size=200`,
       member_since: membresia
         ? new Date(membresia.fecha_inicio).toLocaleDateString('es-BO', { month: 'short', year: 'numeric' })
-        : 'Reciente',
+        : '—',
       plan: membresia?.planes?.nombre || 'Sin membresía',
       planTier: membresia?.planes?.tipo || 'ninguno',
     },
 
     credits: {
-      total: creditosTotal === null ? '∞' : creditosTotal,
+      // FIX: total 0 si no tiene membresía
+      total: !tieneMem ? 0 : (creditosTotal === null ? '∞' : creditosTotal),
       used: creditosUsados,
-      remaining: creditosTotal === null ? '∞' : creditosRestantes,
+      remaining: creditosRestantes,
       cycle_end: membresia?.fecha_fin || '',
       rollover: 0,
       pending_makeup: 0,
     },
 
     classes: s.clases,
-    history: s.historial.length > 0 ? s.historial : datosHistorialDemo(),
+    // FIX: nunca mostrar datos demo — arrays vacíos si no hay datos reales
+    history: s.historial,
     makeups: [],
-    notifications: s.notificaciones.length > 0 ? s.notificaciones : datosNotifDemo(),
-    evaluaciones: s.evaluaciones.length > 0 ? s.evaluaciones : datosEvalDemo(),
-    evaluations: s.evaluaciones.length > 0 ? s.evaluaciones : datosEvalDemo(),
+    notifications: s.notificaciones,
+    evaluaciones: s.evaluaciones,
+    evaluations: s.evaluaciones,
     upcoming: misClasesFuturas.slice(0, 4).map(c => ({
       date: c.date,
       start: c.start,
       name: c.name,
       coach: c.coach,
     })),
+  };
+}
+
+// ── Fallback cuando Supabase falla completamente ─────────────
+// FIX: sin datos inventados — todo en 0 y vacío
+function construirMoveSinDatos() {
+  window.MOVE_DATA = {
+    user: {
+      name: 'Usuario',
+      firstName: 'Usuario',
+      avatar: 'https://ui-avatars.com/api/?name=U&background=5C7260&color=fff&size=200',
+      member_since: '—',
+      plan: 'Sin membresía',
+      planTier: 'ninguno',
+    },
+    credits: { total: 0, used: 0, remaining: 0, cycle_end: '', rollover: 0, pending_makeup: 0 },
+    classes: [],
+    history: [],
+    makeups: [],
+    notifications: [],
+    evaluaciones: [],
+    evaluations: [],
+    upcoming: [],
   };
 }
 
@@ -299,7 +333,6 @@ window.LUMINA_SOLICITAR_LICENCIA = async (reservaId, claseId, motivo) => {
     .single();
 
   if (!error) {
-    // Actualizar estado de la reserva
     await sb
       .from('reservas')
       .update({ estado: 'licencia' })
@@ -344,11 +377,11 @@ function mapearIcono(tipo) {
 
 function construirSecciones(eval_) {
   const secciones = [];
-  if (eval_.peso_kg)    secciones.push({ label: 'Peso', value: `${eval_.peso_kg} kg` });
-  if (eval_.altura_cm)  secciones.push({ label: 'Altura', value: `${eval_.altura_cm} cm` });
-  if (eval_.imc)        secciones.push({ label: 'IMC', value: eval_.imc });
-  if (eval_.postura)    secciones.push({ label: 'Postura', value: eval_.postura });
-  if (eval_.movilidad)  secciones.push({ label: 'Movilidad', value: eval_.movilidad });
+  if (eval_.peso_kg)     secciones.push({ label: 'Peso',        value: `${eval_.peso_kg} kg` });
+  if (eval_.altura_cm)   secciones.push({ label: 'Altura',      value: `${eval_.altura_cm} cm` });
+  if (eval_.imc)         secciones.push({ label: 'IMC',         value: eval_.imc });
+  if (eval_.postura)     secciones.push({ label: 'Postura',     value: eval_.postura });
+  if (eval_.movilidad)   secciones.push({ label: 'Movilidad',   value: eval_.movilidad });
   if (eval_.fuerza_core) secciones.push({ label: 'Fuerza core', value: eval_.fuerza_core });
   return secciones.length > 0 ? secciones : [{ label: 'Evaluación', value: 'Ver notas' }];
 }
@@ -356,74 +389,6 @@ function construirSecciones(eval_) {
 function formatearHoraLimite(fechaInicio) {
   const limite = new Date(fechaInicio - 2 * 60 * 60 * 1000);
   return limite.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
-}
-
-// ── Datos demo (fallback si no hay datos en Supabase aún) ────
-function usarDatosDemo() {
-  window.MOVE_DATA = window.MOVE_DATA || {};
-  construirMoveDataDemo();
-}
-
-function construirMoveDataDemo() {
-  window.MOVE_DATA = {
-    user: {
-      name: 'Alumna Lumina',
-      firstName: 'Alumna',
-      avatar: 'https://ui-avatars.com/api/?name=Alumna+Lumina&background=5C7260&color=fff&size=200',
-      member_since: 'May 2026',
-      plan: 'Plan Lumina · 12 clases',
-      planTier: 'creditos_12',
-    },
-    credits: { total: 12, used: 4, remaining: 8, cycle_end: '2026-05-31', rollover: 0, pending_makeup: 0 },
-    classes: clasesDemo(),
-    history: datosHistorialDemo(),
-    makeups: [],
-    notifications: datosNotifDemo(),
-    evaluations: datosEvalDemo(),
-    evaluaciones: datosEvalDemo(),
-    upcoming: clasesDemo().slice(0, 3).map(c => ({ date: c.date, start: c.start, name: c.name, coach: c.coach })),
-  };
-}
-
-function clasesDemo() {
-  const hoy = new Date();
-  const fmt = (d) => d.toISOString().split('T')[0];
-  const d0 = fmt(hoy);
-  const d1 = fmt(new Date(hoy.getTime() + 86400000));
-  const d2 = fmt(new Date(hoy.getTime() + 2 * 86400000));
-  return [
-    { id: 'demo1', date: d0, start: '09:00', end: '09:50', name: 'Reformer Flow', coach: 'Instructora A', room: 'Estudio A', spots_total: 8, spots_taken: 5, level: 'Todos los niveles', mine: true, isNext: true, status: 'confirmada' },
-    { id: 'demo2', date: d0, start: '11:00', end: '11:50', name: 'Mat Clásico', coach: 'Instructora B', room: 'Estudio B', spots_total: 12, spots_taken: 7, level: 'Todos los niveles', mine: false },
-    { id: 'demo3', date: d1, start: '08:00', end: '08:50', name: 'Reformer Flow', coach: 'Instructora A', room: 'Estudio A', spots_total: 8, spots_taken: 4, level: 'Todos los niveles', mine: true },
-    { id: 'demo4', date: d2, start: '10:00', end: '10:50', name: 'Pilates Terapéutico', coach: 'Instructora C', room: 'Estudio C', spots_total: 4, spots_taken: 2, level: 'Personalizado', mine: false },
-  ];
-}
-
-function datosHistorialDemo() {
-  return [
-    { id: 'h1', date: '2026-05-10', start: '09:00', name: 'Reformer Flow', coach: 'Instructora A', status: 'attended', note: 'Buena sesión.' },
-    { id: 'h2', date: '2026-05-08', start: '11:00', name: 'Mat Clásico', coach: 'Instructora B', status: 'attended' },
-    { id: 'h3', date: '2026-05-06', start: '09:00', name: 'Reformer Flow', coach: 'Instructora A', status: 'license', note: 'Licencia aprobada.' },
-  ];
-}
-
-function datosNotifDemo() {
-  return [
-    { id: 'n1', when: new Date().toISOString(), icon: 'bell', tag: 'Bienvenida', title: '¡Bienvenida a Lumina Pilates!', body: 'Tu cuenta está activa. Explorá el portal y reservá tu primera clase.', read: false },
-  ];
-}
-
-function datosEvalDemo() {
-  return [
-    {
-      id: 'e1', date: new Date().toISOString().split('T')[0],
-      title: 'Evaluación inicial', by: 'Equipo Lumina',
-      level: 'principiante',
-      sections: [{ label: 'Estado general', value: 'Pendiente evaluación' }],
-      observations: 'Tu primera evaluación será agendada por tu instructora.',
-      objectives: 'Conocer tu punto de partida y definir objetivos.',
-    }
-  ];
 }
 
 // ── Helpers de fecha (compatibles con screens) ───────────────
