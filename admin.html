@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Admin — Lumina Pilates</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --cream:         #FAF7F2;
+      --warm-white:    #FDFCFA;
+      --stone-light:   #EDE8DE;
+      --stone:         #C4B89A;
+      --stone-dark:    #8C7A5E;
+      --charcoal:      #1C1C1A;
+      --charcoal-soft: #2E2E2B;
+      --charcoal-mid:  #4A4A45;
+      --gold:          #C9A96E;
+      --gold-muted:    #A08545;
+      --gold-light:    #E8D5B0;
+      --sage:          #7A8C74;
+      --sage-light:    #B8C4B2;
+      --sage-pale:     #E8EDE6;
+      --sidebar-bg:    #1a2e1f;
+      --radius:        12px;
+      --radius-sm:     8px;
+      --shadow-card:   0 4px 40px rgba(28,28,26,0.08);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:'DM Sans',system-ui,sans-serif;background:var(--cream);color:var(--charcoal);font-size:14px;-webkit-font-smoothing:antialiased}
+    ::-webkit-scrollbar{width:4px;height:4px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--stone-light);border-radius:4px}
+
+    #app{display:flex;height:100vh;overflow:hidden}
+
+    /* SIDEBAR */
+    .sidebar{width:228px;flex-shrink:0;background:var(--sidebar-bg);display:flex;flex-direction:column;overflow-y:auto}
+    .sidebar-logo{padding:26px 20px 18px;border-bottom:1px solid rgba(196,184,154,.1)}
+    .sidebar-logo .wordmark{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;letter-spacing:.08em;color:rgba(250,247,242,.88)}
+    .sidebar-logo .sub{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--stone);margin-top:3px}
+    .nav-section{padding:16px 12px 0}
+    .nav-label{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(196,184,154,.4);padding:0 8px;margin-bottom:6px;font-weight:500}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer;color:rgba(250,247,242,.5);font-size:13px;transition:all .2s;border:none;background:none;width:100%;text-align:left}
+    .nav-item:hover{background:rgba(250,247,242,.04);color:rgba(250,247,242,.75)}
+    .nav-item.active{background:rgba(250,247,242,.09);color:rgba(250,247,242,.9)}
+    .nav-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:.5}
+    .nav-item.active .nav-dot{background:var(--gold);opacity:1}
+    .nav-badge{margin-left:auto;background:#c0392b;color:#fff;font-size:10px;padding:1px 6px;border-radius:99px;min-width:18px;text-align:center}
+    .nav-spacer{flex:1}
+    .sidebar-user{padding:14px;border-top:1px solid rgba(196,184,154,.1);display:flex;align-items:center;gap:10px}
+    .avatar-sm{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--stone-dark),var(--gold-muted));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--cream);flex-shrink:0}
+    .user-name{font-size:12px;color:rgba(250,247,242,.8);font-weight:500}
+    .user-role{font-size:10px;color:var(--stone);margin-top:1px;letter-spacing:.06em}
+    .btn-logout{margin-left:auto;background:none;border:none;color:rgba(196,184,154,.4);cursor:pointer;font-size:14px;padding:4px 6px;border-radius:6px;transition:all .2s}
+    .btn-logout:hover{color:rgba(250,247,242,.6)}
+
+    /* MAIN */
+    .main{flex:1;overflow-y:auto;display:flex;flex-direction:column;background:var(--cream)}
+    .topbar{padding:18px 28px;border-bottom:1px solid var(--stone-light);display:flex;align-items:center;gap:16px;background:var(--warm-white);flex-shrink:0}
+    .topbar-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--charcoal)}
+    .topbar-sub{font-size:12px;color:var(--stone-dark);margin-top:2px;font-weight:300}
+    .topbar-actions{margin-left:auto;display:flex;gap:8px}
+    .content{padding:28px;flex:1}
+
+    /* BUTTONS */
+    .btn{padding:8px 18px;border-radius:99px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px;letter-spacing:.02em}
+    .btn-primary{background:var(--charcoal);color:var(--cream)}
+    .btn-primary:hover{background:var(--charcoal-soft);transform:translateY(-1px)}
+    .btn-ghost{background:transparent;border:1.5px solid var(--stone-light);color:var(--charcoal-mid)}
+    .btn-ghost:hover{border-color:var(--stone);background:var(--stone-light);color:var(--charcoal)}
+    .btn-danger{background:#fdf0ef;color:#a83232;border:1.5px solid #e8b8b8}
+    .btn-danger:hover{background:#a83232;color:#fff}
+    .btn-sm-act{padding:5px 12px;border-radius:99px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;border:none;transition:all .2s}
+    .btn-approve{background:#e8f5ee;color:#2d7a4f;border:1px solid #b8deca}
+    .btn-approve:hover{background:#2d7a4f;color:#fff}
+    .btn-reject{background:#fdf0ef;color:#a83232;border:1px solid #e8b8b8}
+    .btn-reject:hover{background:#a83232;color:#fff}
+
+    /* STATS */
+    .stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:26px}
+    .stat-card{background:var(--warm-white);border:1px solid var(--stone-light);border-radius:var(--radius);padding:18px 20px}
+    .stat-card.highlight{border-color:var(--gold-light)}
+    .stat-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--stone-dark);font-weight:500}
+    .stat-value{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--charcoal);margin-top:4px}
+    .stat-card.highlight .stat-value{color:var(--gold-muted)}
+    .stat-meta{font-size:11px;color:var(--stone-dark);margin-top:2px;font-weight:300}
+
+    /* CARDS */
+    .card{background:var(--warm-white);border:1px solid var(--stone-light);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+    .card-header{padding:16px 20px;border-bottom:1px solid var(--stone-light);display:flex;align-items:center;gap:10px}
+    .card-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:var(--charcoal)}
+    .card-actions{margin-left:auto;display:flex;gap:8px}
+    .pill{background:var(--stone-light);color:var(--stone-dark);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:500}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+
+    /* TABLE */
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse}
+    th{text-align:left;padding:10px 20px;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--stone-dark);font-weight:500;border-bottom:1px solid var(--stone-light)}
+    td{padding:10px 20px;font-size:12px;border-bottom:1px solid var(--stone-light);color:var(--charcoal-mid)}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:var(--stone-light)}
+    .td-name{color:var(--charcoal);font-weight:500}
+    .avatar-xs{width:26px;height:26px;border-radius:50%;background:var(--stone-light);border:1px solid var(--stone);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:var(--stone-dark);margin-right:8px;vertical-align:middle;font-weight:500}
+
+    /* BADGES */
+    .badge{padding:3px 9px;border-radius:99px;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase}
+    .badge-green{background:#e8f5ee;color:#2d7a4f;border:1px solid #b8deca}
+    .badge-yellow{background:#fef8e8;color:#8a6e20;border:1px solid #e8d68a}
+    .badge-red{background:#fdf0ef;color:#a83232;border:1px solid #e8b8b8}
+    .badge-blue{background:#eef4fb;color:#2a5c8a;border:1px solid #b8d0e8}
+    .badge-stone{background:var(--stone-light);color:var(--stone-dark);border:1px solid var(--stone)}
+    .badge-sage{background:var(--sage-pale);color:var(--sage);border:1px solid var(--sage-light)}
+    .badge-gold{background:#fdf6e8;color:var(--gold-muted);border:1px solid var(--gold-light)}
+
+    /* TABS */
+    .tabs{display:flex;gap:2px;background:var(--stone-light);border-radius:var(--radius-sm);padding:3px;width:fit-content;margin-bottom:16px}
+    .tab{padding:6px 16px;border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--stone-dark);border:none;background:none;transition:all .15s;font-weight:400}
+    .tab.active{background:var(--warm-white);color:var(--charcoal);font-weight:500;box-shadow:0 1px 4px rgba(28,28,26,.08)}
+
+    /* SEARCH */
+    .search-bar{display:flex;gap:8px;margin-bottom:14px}
+    .search-input{flex:1;background:var(--warm-white);border:1.5px solid var(--stone-light);border-radius:99px;padding:8px 16px;color:var(--charcoal);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+    .search-input:focus{border-color:var(--stone)}
+
+    /* CLASE CARD (dashboard) */
+    .clase-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;padding:16px}
+    .clase-card{background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm);padding:14px;cursor:default;transition:border-color .15s}
+    .clase-card:hover{border-color:var(--stone)}
+    .clase-hora{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--stone-dark);margin-bottom:3px}
+    .clase-nombre{font-size:13px;font-weight:500;color:var(--charcoal)}
+    .clase-detalle{font-size:11px;color:var(--stone-dark);margin-top:2px;font-weight:300}
+    .clase-footer{display:flex;align-items:center;gap:8px;margin-top:10px}
+    .progress-bar{flex:1;height:3px;background:var(--stone-light);border-radius:99px;overflow:hidden}
+    .progress-fill{height:100%;border-radius:99px;background:var(--gold);transition:width .3s}
+
+    /* PLAN CARDS */
+    .plan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+    .plan-card{background:var(--warm-white);border:1px solid var(--stone-light);border-radius:var(--radius);padding:22px}
+    .plan-nombre{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:var(--charcoal);margin-bottom:2px}
+    .plan-tipo{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--stone-dark);margin-bottom:12px}
+    .plan-precio{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold-muted);margin-bottom:12px}
+    .plan-dashed{border:1.5px dashed var(--stone-light);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:160px;cursor:pointer;transition:border-color .2s;border-radius:var(--radius)}
+    .plan-dashed:hover{border-color:var(--stone)}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(28,28,26,.5);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
+    .modal{background:var(--warm-white);border:1px solid var(--stone-light);border-radius:16px;width:500px;max-width:95vw;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-card)}
+    .modal-header{padding:22px 26px 16px;border-bottom:1px solid var(--stone-light);display:flex;align-items:center;justify-content:space-between}
+    .modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--charcoal)}
+    .modal-close{background:none;border:none;color:var(--stone);font-size:20px;cursor:pointer;line-height:1;padding:2px 7px;border-radius:6px;transition:all .2s}
+    .modal-close:hover{color:var(--charcoal);background:var(--stone-light)}
+    .modal-body{padding:20px 26px}
+    .modal-footer{padding:14px 26px;border-top:1px solid var(--stone-light);display:flex;justify-content:flex-end;gap:8px}
+
+    /* FORM */
+    .form-group{margin-bottom:14px}
+    .form-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--stone-dark);font-weight:500;margin-bottom:5px;display:block}
+    .form-input,.form-select,.form-textarea{width:100%;background:var(--cream);border:1.5px solid var(--stone-light);border-radius:var(--radius-sm);padding:9px 12px;color:var(--charcoal);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+    .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--stone)}
+    .form-textarea{resize:vertical;min-height:80px}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .form-help{font-size:11px;color:var(--stone);margin-top:4px;font-weight:300}
+
+    /* EMPTY */
+    .empty-state{padding:48px 24px;text-align:center;color:var(--stone-dark);font-size:13px;font-weight:300;line-height:1.6}
+    .empty-icon{font-size:24px;margin-bottom:10px;opacity:.5}
+
+    /* QUICK ACTIONS */
+    .quick-action{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s;font-size:13px;color:var(--charcoal-mid);border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
+    .quick-action:hover{background:var(--stone-light);color:var(--charcoal)}
+
+    /* TOAST */
+    .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px}
+    .toast{background:var(--warm-white);border:1px solid var(--stone-light);border-radius:var(--radius-sm);padding:11px 18px;font-size:13px;color:var(--charcoal);box-shadow:var(--shadow-card);display:flex;align-items:center;gap:8px;animation:slideIn .2s ease;max-width:320px}
+    @keyframes slideIn{from{transform:translateX(60px);opacity:0}to{transform:none;opacity:1}}
+    .toast.success{border-left:3px solid #2d7a4f}
+    .toast.error{border-left:3px solid #a83232}
+    .toast.info{border-left:3px solid var(--gold)}
+
+    @media(max-width:1100px){.stat-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:900px){.stat-grid{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}.sidebar{width:190px}}
+    @media(max-width:600px){.sidebar{display:none}}
+  </style>
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="wordmark">Lumina</div>
+      <div class="sub">Panel Admin</div>
+    </div>
+    <div class="nav-section" style="margin-top:8px">
+      <div class="nav-label">Visión general</div>
+      <button class="nav-item active" onclick="sw('dashboard')"><span class="nav-dot"></span>Dashboard</button>
+    </div>
+    <div class="nav-section" style="margin-top:14px">
+      <div class="nav-label">Alumnos</div>
+      <button class="nav-item" onclick="sw('usuarios')"><span class="nav-dot"></span>Usuarios</button>
+      <button class="nav-item" onclick="sw('membresias')"><span class="nav-dot"></span>Membresías</button>
+      <button class="nav-item" onclick="sw('licencias')"><span class="nav-dot"></span>Licencias<span class="nav-badge" id="badge-lic" style="display:none">0</span></button>
+    </div>
+    <div class="nav-section" style="margin-top:14px">
+      <div class="nav-label">Operaciones</div>
+      <button class="nav-item" onclick="sw('clases')"><span class="nav-dot"></span>Clases</button>
+      <button class="nav-item" onclick="sw('planes')"><span class="nav-dot"></span>Planes</button>
+    </div>
+    <div class="nav-spacer"></div>
+    <div class="sidebar-user">
+      <div class="avatar-sm" id="sb-avatar">A</div>
+      <div>
+        <div class="user-name" id="sb-name">Admin</div>
+        <div class="user-role">Administrador</div>
+      </div>
+      <button class="btn-logout" onclick="logout()" title="Salir">↩</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="tp-title">Dashboard</div>
+        <div class="topbar-sub">Lumina Pilates · Santa Cruz, Bolivia</div>
+      </div>
+      <div class="topbar-actions" id="tp-actions"></div>
+    </div>
+    <div class="content" id="main-content">
+      <div class="empty-state"><div class="empty-icon">·</div>Cargando…</div>
+    </div>
+  </main>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<!-- MODAL USUARIO -->
+<div class="modal-overlay" id="m-usuario" style="display:none">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="m-u-title">Nuevo Usuario</div><button class="modal-close" onclick="cm('m-usuario')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="u-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nombre</label><input type="text" class="form-input" id="u-nom"></div>
+        <div class="form-group"><label class="form-label">Apellido</label><input type="text" class="form-input" id="u-ape"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Teléfono</label><input type="text" class="form-input" id="u-tel" placeholder="+591 7XXXXXXX"></div>
+      <div class="form-group"><label class="form-label">Rol</label><select class="form-select" id="u-rol"><option value="alumno">Alumno</option><option value="profesor">Profesor</option><option value="admin">Admin</option></select></div>
+      <div class="form-group"><label class="form-label">Observaciones médicas</label><textarea class="form-textarea" id="u-obs" placeholder="Restricciones, condiciones…"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="cm('m-usuario')">Cancelar</button><button class="btn btn-primary" onclick="guardarUsuario()">Guardar</button></div>
+  </div>
+</div>
+
+<!-- MODAL MEMBRESIA -->
+<div class="modal-overlay" id="m-mem" style="display:none">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="m-mem-title">Asignar Membresía</div><button class="modal-close" onclick="cm('m-mem')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="mem-aid">
+      <div class="form-group"><label class="form-label">Plan</label><select class="form-select" id="mem-plan"><option value="">Seleccionar…</option></select></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Fecha inicio</label><input type="date" class="form-input" id="mem-ini"></div>
+        <div class="form-group"><label class="form-label">Fecha fin</label><input type="date" class="form-input" id="mem-fin"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Créditos</label><input type="number" class="form-input" id="mem-cred" placeholder="Se llena con el plan"><div class="form-help">Podés ajustar manualmente si es necesario</div></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="cm('m-mem')">Cancelar</button><button class="btn btn-primary" onclick="guardarMem()">Asignar Membresía</button></div>
+  </div>
+</div>
+
+<!-- MODAL CREDITOS -->
+<div class="modal-overlay" id="m-cred" style="display:none">
+  <div class="modal" style="width:380px">
+    <div class="modal-header"><div class="modal-title">Ajustar Créditos</div><button class="modal-close" onclick="cm('m-cred')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="cred-mid">
+      <div style="font-size:13px;color:var(--stone-dark);margin-bottom:16px;font-weight:300" id="cred-nom"></div>
+      <div class="form-group"><label class="form-label">Créditos actuales</label><input type="number" class="form-input" id="cred-act" readonly style="color:var(--stone-dark)"></div>
+      <div class="form-group"><label class="form-label">Nuevo saldo</label><input type="number" class="form-input" id="cred-new" min="0"></div>
+      <div class="form-group"><label class="form-label">Motivo</label><input type="text" class="form-input" id="cred-mot" placeholder="Cortesía, corrección, bono…"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="cm('m-cred')">Cancelar</button><button class="btn btn-primary" onclick="guardarCred()">Actualizar Créditos</button></div>
+  </div>
+</div>
+
+<!-- MODAL CLASE -->
+<div class="modal-overlay" id="m-clase" style="display:none">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="m-cl-title">Nueva Clase</div><button class="modal-close" onclick="cm('m-clase')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="cl-id">
+      <div class="form-group"><label class="form-label">Nombre de la clase</label><input type="text" class="form-input" id="cl-nom" placeholder="Ej. Reformer Intermedio"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Fecha y hora</label><input type="datetime-local" class="form-input" id="cl-fecha"></div>
+        <div class="form-group"><label class="form-label">Capacidad</label><input type="number" class="form-input" id="cl-cap" placeholder="6" min="1"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Modalidad</label><select class="form-select" id="cl-mod"><option>Reformer</option><option>Mat</option><option>Cadillac</option><option>Chair</option><option>Barrel</option><option>Mixto</option></select></div>
+        <div class="form-group"><label class="form-label">Nivel</label><select class="form-select" id="cl-niv"><option>Principiante</option><option>Intermedio</option><option>Avanzado</option><option>Todos los niveles</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Profesor</label><select class="form-select" id="cl-prof"><option value="">Sin asignar</option></select></div>
+      <div class="form-group"><label class="form-label">Descripción / Notas</label><textarea class="form-textarea" id="cl-desc" placeholder="Notas para el profesor, equipo necesario…"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="cm('m-clase')">Cancelar</button><button class="btn btn-primary" onclick="guardarClase()">Guardar Clase</button></div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://yeaejlbahtkrrsttbprb.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InllYWVqbGJhaHRrcnJzdHRicHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Nzk3NTIsImV4cCI6MjA5NDU1NTc1Mn0.gpzc8sNIifOtfbA02nITKF9od8B9thSXlOyKrlA3ic0';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+
+let ADMIN=null,USUARIOS=[],MEMS=[],CLASES=[],LICS=[],PLANES=[],CURRENT='dashboard',Q='';
+window._licTab='pendiente';
+
+window.addEventListener('DOMContentLoaded',async()=>{
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){location.href='/index.html';return}
+  const {data:p}=await sb.from('perfiles').select('*').eq('id',session.user.id).single();
+  if(!p||p.rol!=='admin'){toast('Acceso denegado. Solo administradores.','error');setTimeout(()=>location.href='/index.html',2000);return}
+  ADMIN=p;
+  document.getElementById('sb-avatar').textContent=(p.nombre[0]+p.apellido[0]).toUpperCase();
+  document.getElementById('sb-name').textContent=p.nombre;
+  await Promise.all([loadUsuarios(),loadMems(),loadClases(),loadLics(),loadPlanes()]);
+  sw('dashboard');
+});
+
+async function loadUsuarios(){const {data}=await sb.from('perfiles').select('*').order('nombre');USUARIOS=data||[]}
+async function loadMems(){const {data}=await sb.from('membresias').select('*,perfiles!membresias_alumno_id_fkey(nombre,apellido),planes(nombre,creditos,precio_bs)').order('created_at',{ascending:false});MEMS=data||[]}
+async function loadClases(){const {data}=await sb.from('clases').select('*,perfiles!clases_profesor_id_fkey(nombre,apellido)').order('fecha_hora',{ascending:false});CLASES=data||[]}
+async function loadLics(){
+  const {data}=await sb.from('licencias').select('*,perfiles!licencias_alumno_id_fkey(nombre,apellido)').order('created_at',{ascending:false});LICS=data||[];
+  const pend=LICS.filter(l=>l.estado==='pendiente').length;
+  const b=document.getElementById('badge-lic');
+  if(pend>0){b.textContent=pend;b.style.display=''}else b.style.display='none';
+}
+async function loadPlanes(){const {data}=await sb.from('planes').select('*').eq('activo',true).order('precio_bs');PLANES=data||[]}
+
+function sw(s){
+  CURRENT=s;Q='';
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const idx={dashboard:0,usuarios:1,membresias:2,licencias:3,clases:4,planes:5};
+  document.querySelectorAll('.nav-item')[idx[s]]?.classList.add('active');
+  document.getElementById('tp-title').textContent={dashboard:'Dashboard',usuarios:'Usuarios',membresias:'Membresías',licencias:'Licencias',clases:'Clases',planes:'Planes & Precios'}[s]||'';
+  document.getElementById('tp-actions').innerHTML={
+    usuarios:`<button class="btn btn-primary" onclick="openNewUsuario()">+ Nuevo usuario</button>`,
+    clases:`<button class="btn btn-primary" onclick="openNewClase()">+ Nueva clase</button>`,
+  }[s]||'';
+  ({dashboard:renderDashboard,usuarios:renderUsuarios,membresias:renderMems,licencias:renderLics,clases:renderClases,planes:renderPlanes}[s])?.();
+}
+
+/* ── DASHBOARD ── */
+function renderDashboard(){
+  const alumnos=USUARIOS.filter(u=>u.rol==='alumno'&&u.activo);
+  const profs=USUARIOS.filter(u=>u.rol==='profesor'&&u.activo);
+  const memAct=MEMS.filter(m=>m.estado==='activa');
+  const hoy=new Date().toISOString().split('T')[0];
+  const clasesHoy=CLASES.filter(c=>c.fecha_hora?.startsWith(hoy));
+  const licPend=LICS.filter(l=>l.estado==='pendiente');
+  const ingresos=memAct.reduce((s,m)=>s+(m.planes?.precio_bs||0),0);
+  const proximas=CLASES.filter(c=>c.fecha_hora>=new Date().toISOString()).slice(0,6);
+
+  const claseCards=proximas.map(c=>{
+    const f=new Date(c.fecha_hora);
+    const h=f.toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'});
+    const dia=f.toLocaleDateString('es-BO',{weekday:'short',day:'numeric',month:'short'});
+    const ins=c.alumnos_inscritos||0;const cap=c.capacidad||1;
+    const pct=Math.round(ins/cap*100);
+    const prof=c.perfiles?`${c.perfiles.nombre} ${c.perfiles.apellido}`:'Sin profesor';
+    return `<div class="clase-card"><div class="clase-hora">${h}</div><div class="clase-nombre">${c.nombre}</div><div class="clase-detalle">${dia} · ${c.modalidad||'Reformer'} · ${prof}</div><div class="clase-footer"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div><span style="font-size:10px;color:var(--stone)">${ins}/${cap}</span></div></div>`;
+  }).join('')||`<div class="empty-state" style="padding:20px">Sin clases próximas</div>`;
+
+  const licItems=licPend.slice(0,4).map(l=>{
+    const nom=l.perfiles?`${l.perfiles.nombre} ${l.perfiles.apellido}`:'—';
+    const fc=new Date(l.fecha_clase).toLocaleDateString('es-BO',{day:'numeric',month:'short'});
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--stone-light)"><div style="flex:1"><div style="font-size:13px;color:var(--charcoal);font-weight:500">${nom}</div><div style="font-size:11px;color:var(--stone-dark);font-weight:300">Clase ${fc} · ${l.motivo||'Sin motivo'}</div></div><button class="btn btn-ghost" style="font-size:11px;padding:5px 12px" onclick="sw('licencias')">Revisar</button></div>`;
+  }).join('')||`<div class="empty-state" style="padding:20px">Sin licencias pendientes ✓</div>`;
+
+  set(`<div class="stat-grid">
+    ${sc('Alumnos',alumnos.length,'Activos en el sistema','highlight')}
+    ${sc('Membresías',memAct.length,'Activas este mes','')}
+    ${sc('Profesores',profs.length,'En el staff','')}
+    ${sc('Clases hoy',clasesHoy.length,'Programadas','')}
+    ${sc('Ingresos est.','Bs '+ingresos.toFixed(0),'Membresías activas','')}
+  </div>
+  <div class="grid-2">
+    <div class="card"><div class="card-header"><div class="card-title">Próximas Clases</div><div class="card-actions"><button class="btn btn-ghost" onclick="sw('clases')">Ver todas</button></div></div><div class="clase-grid">${claseCards}</div></div>
+    <div>
+      <div class="card"><div class="card-header"><div class="card-title">Licencias Pendientes</div>${licPend.length?`<div class="card-actions"><span class="badge badge-red">${licPend.length}</span></div>`:''}</div>${licItems}</div>
+      <div class="card"><div class="card-header"><div class="card-title">Acciones rápidas</div></div><div style="padding:10px">
+        <button class="quick-action" onclick="openNewUsuario()">👤 Nuevo usuario</button>
+        <button class="quick-action" onclick="openNewClase()">📅 Nueva clase</button>
+        <button class="quick-action" onclick="sw('membresias')">💳 Gestionar membresías</button>
+        <button class="quick-action" onclick="sw('licencias')">📋 Revisar licencias</button>
+      </div></div>
+    </div>
+  </div>`);
+}
+
+/* ── USUARIOS ── */
+function renderUsuarios(){
+  const q=Q.toLowerCase();
+  const fil=USUARIOS.filter(u=>`${u.nombre} ${u.apellido} ${u.telefono||''} ${u.rol}`.toLowerCase().includes(q));
+  const rows=fil.map(u=>{
+    const ini=(u.nombre[0]+u.apellido[0]).toUpperCase();
+    const rb={admin:'<span class="badge badge-gold">Admin</span>',profesor:'<span class="badge badge-blue">Profesor</span>',alumno:'<span class="badge badge-sage">Alumno</span>'}[u.rol]||'';
+    const ab=u.activo?'<span class="badge badge-green">Activo</span>':'<span class="badge badge-stone">Inactivo</span>';
+    return `<tr><td class="td-name"><span class="avatar-xs">${ini}</span>${u.nombre} ${u.apellido}</td><td>${rb}</td><td style="color:var(--stone-dark)">${u.telefono||'—'}</td><td>${ab}</td><td><a onclick="editUsuario('${u.id}')" style="color:var(--gold-muted);cursor:pointer;font-size:11px;margin-right:8px">Editar</a>${u.rol==='alumno'?`<a onclick="openMemPara('${u.id}','${u.nombre} ${u.apellido}')" style="color:var(--stone-dark);cursor:pointer;font-size:11px">Membresía</a>`:''}</td></tr>`;
+  }).join('');
+  set(`<div class="search-bar"><input class="search-input" placeholder="Buscar por nombre, teléfono, rol…" oninput="Q=this.value;renderUsuarios()" value="${q}"><button class="btn btn-primary" onclick="openNewUsuario()">+ Nuevo</button></div>
+  <div class="card"><div class="card-header"><div class="card-title">Usuarios</div><div class="card-actions"><span class="pill">${fil.length} usuario${fil.length!==1?'s':''}</span></div></div><div class="table-wrap"><table><thead><tr><th>Nombre</th><th>Rol</th><th>Teléfono</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${rows||`<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--stone)">Sin resultados</td></tr>`}</tbody></table></div></div>`);
+}
+
+/* ── MEMBRESIAS ── */
+function renderMems(){
+  const q=Q.toLowerCase();
+  const fil=MEMS.filter(m=>{const n=m.perfiles?`${m.perfiles.nombre} ${m.perfiles.apellido}`:'';return(n+(m.planes?.nombre||'')).toLowerCase().includes(q)});
+  const rows=fil.map(m=>{
+    const nom=m.perfiles?`${m.perfiles.nombre} ${m.perfiles.apellido}`:'—';
+    const ini=m.perfiles?(m.perfiles.nombre[0]+m.perfiles.apellido[0]).toUpperCase():'?';
+    const eb={activa:'<span class="badge badge-green">Activa</span>',vencida:'<span class="badge badge-red">Vencida</span>',suspendida:'<span class="badge badge-yellow">Suspendida</span>',pendiente:'<span class="badge badge-stone">Pendiente</span>'}[m.estado]||`<span class="badge badge-stone">${m.estado}</span>`;
+    const fin=m.fecha_fin?new Date(m.fecha_fin).toLocaleDateString('es-BO'):'—';
+    return `<tr><td class="td-name"><span class="avatar-xs">${ini}</span>${nom}</td><td>${m.planes?.nombre||'—'}</td><td style="font-variant-numeric:tabular-nums;color:var(--gold-muted);font-weight:500">${m.creditos_restantes??'—'}</td><td>${eb}</td><td style="color:var(--stone-dark)">${fin}</td><td><a onclick="openCred('${m.id}','${nom}',${m.creditos_restantes||0})" style="color:var(--gold-muted);cursor:pointer;font-size:11px;margin-right:8px">Créditos</a><a onclick="toggleEstadoMem('${m.id}','${m.estado}')" style="color:var(--stone-dark);cursor:pointer;font-size:11px">Estado</a></td></tr>`;
+  }).join('');
+  set(`<div class="search-bar"><input class="search-input" placeholder="Buscar por alumno o plan…" oninput="Q=this.value;renderMems()" value="${q}"></div>
+  <div class="card"><div class="card-header"><div class="card-title">Membresías</div><div class="card-actions"><span class="pill">${fil.length}</span></div></div><div class="table-wrap"><table><thead><tr><th>Alumno</th><th>Plan</th><th>Créditos</th><th>Estado</th><th>Vence</th><th>Acciones</th></tr></thead><tbody>${rows||`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--stone)">Sin membresías</td></tr>`}</tbody></table></div></div>`);
+}
+
+/* ── LICENCIAS ── */
+function renderLics(){
+  const tabs=['pendiente','aprobada','rechazada'];
+  const t=window._licTab;
+  const fil=LICS.filter(l=>l.estado===t);
+  const tabsHtml=tabs.map(x=>`<button class="tab ${x===t?'active':''}" onclick="window._licTab='${x}';renderLics()">${x.charAt(0).toUpperCase()+x.slice(1)}s (${LICS.filter(l=>l.estado===x).length})</button>`).join('');
+  const rows=fil.map(l=>{
+    const nom=l.perfiles?`${l.perfiles.nombre} ${l.perfiles.apellido}`:'—';
+    const fc=new Date(l.fecha_clase).toLocaleDateString('es-BO',{weekday:'short',day:'numeric',month:'short'});
+    const sol=new Date(l.created_at).toLocaleDateString('es-BO',{day:'numeric',month:'short',year:'numeric'});
+    const eb={pendiente:'<span class="badge badge-yellow">Pendiente</span>',aprobada:'<span class="badge badge-green">Aprobada</span>',rechazada:'<span class="badge badge-red">Rechazada</span>'}[l.estado];
+    const acc=l.estado==='pendiente'?`<a onclick="resolverLic('${l.id}','aprobada')" style="color:#2d7a4f;cursor:pointer;font-size:11px;margin-right:6px">✓ Aprobar</a><a onclick="resolverLic('${l.id}','rechazada')" style="color:#a83232;cursor:pointer;font-size:11px">✕ Rechazar</a>`:'—';
+    return `<tr><td class="td-name">${nom}</td><td>${fc}</td><td style="color:var(--stone-dark)">${l.motivo||'—'}</td><td>${eb}</td><td style="color:var(--stone)">${sol}</td><td>${acc}</td></tr>`;
+  }).join('');
+  set(`<div class="tabs">${tabsHtml}</div><div class="card"><div class="card-header"><div class="card-title">Licencias — ${t.charAt(0).toUpperCase()+t.slice(1)}s</div><div class="card-actions"><span class="pill">${fil.length}</span></div></div><div class="table-wrap"><table><thead><tr><th>Alumno</th><th>Clase</th><th>Motivo</th><th>Estado</th><th>Solicitada</th><th>Acciones</th></tr></thead><tbody>${rows||`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--stone)">Sin licencias</td></tr>`}</tbody></table></div></div>`);
+}
+async function resolverLic(id,estado){
+  const {error}=await sb.from('licencias').update({estado}).eq('id',id);
+  if(error){toast('Error: '+error.message,'error');return}
+  toast(estado==='aprobada'?'✓ Licencia aprobada':'Licencia rechazada',estado==='aprobada'?'success':'info');
+  await loadLics();renderLics();
+}
+
+/* ── CLASES ── */
+function renderClases(){
+  const q=Q.toLowerCase();
+  const fil=CLASES.filter(c=>`${c.nombre} ${c.modalidad||''} ${c.perfiles?.nombre||''}`.toLowerCase().includes(q));
+  const now=new Date().toISOString();
+  const prox=fil.filter(c=>c.fecha_hora>=now);
+  const pas=fil.filter(c=>c.fecha_hora<now);
+  const thead=`<thead><tr><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Modalidad</th><th>Profesor</th><th>Inscritos</th><th>Estado</th><th>Acciones</th></tr></thead>`;
+  const renderRow=c=>{
+    const f=new Date(c.fecha_hora);
+    const fd=f.toLocaleDateString('es-BO',{weekday:'short',day:'numeric',month:'short'});
+    const fh=f.toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'});
+    const prof=c.perfiles?`${c.perfiles.nombre} ${c.perfiles.apellido}`:'—';
+    const ins=c.alumnos_inscritos||0;
+    const eb={programada:'<span class="badge badge-blue">Programada</span>',en_curso:'<span class="badge badge-green">En curso</span>',completada:'<span class="badge badge-stone">Completada</span>',cancelada:'<span class="badge badge-red">Cancelada</span>'}[c.estado]||`<span class="badge badge-stone">${c.estado||'—'}</span>`;
+    return `<tr><td class="td-name">${c.nombre}</td><td style="color:var(--stone-dark)">${fd}</td><td style="color:var(--gold-muted);font-family:monospace">${fh}</td><td>${c.modalidad||'—'}</td><td>${prof}</td><td>${ins}/${c.capacidad||'—'}</td><td>${eb}</td><td><a onclick="editClase('${c.id}')" style="color:var(--gold-muted);cursor:pointer;font-size:11px;margin-right:6px">Editar</a><a onclick="cancelarClase('${c.id}')" style="color:#a83232;cursor:pointer;font-size:11px">Cancelar</a></td></tr>`;
+  };
+  set(`<div class="search-bar"><input class="search-input" placeholder="Buscar clases…" oninput="Q=this.value;renderClases()" value="${q}"><button class="btn btn-primary" onclick="openNewClase()">+ Nueva clase</button></div>
+  ${prox.length?`<div class="card"><div class="card-header"><div class="card-title">Próximas Clases</div><div class="card-actions"><span class="pill">${prox.length}</span></div></div><div class="table-wrap"><table>${thead}<tbody>${prox.slice(0,20).map(renderRow).join('')}</tbody></table></div></div>`:''}
+  ${pas.length?`<div class="card"><div class="card-header"><div class="card-title">Clases Pasadas</div><div class="card-actions"><span class="pill">${pas.length}</span></div></div><div class="table-wrap"><table>${thead}<tbody>${pas.slice(0,10).map(renderRow).join('')}</tbody></table></div></div>`:''}
+  ${!prox.length&&!pas.length?`<div class="card"><div class="empty-state"><div class="empty-icon">📅</div>Sin clases registradas</div></div>`:''}`);
+}
+async function cancelarClase(id){
+  if(!confirm('¿Cancelar esta clase?'))return;
+  await sb.from('clases').update({estado:'cancelada'}).eq('id',id);
+  toast('Clase cancelada','info');await loadClases();renderClases();
+}
+
+/* ── PLANES ── */
+function renderPlanes(){
+  const cards=PLANES.map(p=>`<div class="plan-card"><div class="plan-nombre">${p.nombre}</div><div class="plan-tipo">${p.tipo}</div><div class="plan-precio">Bs ${p.precio_bs}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px"><span class="badge badge-gold">${p.creditos?p.creditos+' créditos':'Ilimitado'}</span><span class="badge badge-stone">${p.duracion_dias} días</span></div>${p.descripcion?`<div style="font-size:12px;color:var(--stone-dark);line-height:1.5;margin-bottom:14px;font-weight:300">${p.descripcion}</div>`:''}<div style="display:flex;gap:6px"><button class="btn btn-ghost" style="flex:1;font-size:11px" onclick="toast('Próximamente: editar planes.','info')">Editar</button><button class="btn btn-danger" style="font-size:11px" onclick="desactivarPlan('${p.id}')">Desactivar</button></div></div>`).join('');
+  set(`<div class="plan-grid">${cards}<div class="plan-dashed" onclick="toast('Próximamente: crear planes desde el panel.','info')"><div style="font-size:28px;color:var(--stone)">+</div><div style="font-size:12px;color:var(--stone-dark)">Nuevo plan</div></div></div>`);
+}
+async function desactivarPlan(id){
+  if(!confirm('¿Desactivar este plan?'))return;
+  await sb.from('planes').update({activo:false}).eq('id',id);
+  toast('Plan desactivado','info');await loadPlanes();renderPlanes();
+}
+
+/* ── MODALS: USUARIO ── */
+function openNewUsuario(){
+  document.getElementById('m-u-title').textContent='Nuevo Usuario';
+  ['u-id','u-nom','u-ape','u-tel','u-obs'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('u-rol').value='alumno';
+  document.getElementById('m-usuario').style.display='flex';
+}
+function editUsuario(id){
+  const u=USUARIOS.find(x=>x.id===id);if(!u)return;
+  document.getElementById('m-u-title').textContent='Editar Usuario';
+  document.getElementById('u-id').value=u.id;
+  document.getElementById('u-nom').value=u.nombre;
+  document.getElementById('u-ape').value=u.apellido;
+  document.getElementById('u-tel').value=u.telefono||'';
+  document.getElementById('u-rol').value=u.rol;
+  document.getElementById('u-obs').value=u.observaciones_medicas||'';
+  document.getElementById('m-usuario').style.display='flex';
+}
+async function guardarUsuario(){
+  const id=document.getElementById('u-id').value;
+  const payload={nombre:document.getElementById('u-nom').value.trim(),apellido:document.getElementById('u-ape').value.trim(),telefono:document.getElementById('u-tel').value.trim()||null,rol:document.getElementById('u-rol').value,observaciones_medicas:document.getElementById('u-obs').value.trim()||null};
+  if(!payload.nombre||!payload.apellido){toast('Nombre y apellido son obligatorios','error');return}
+  if(!id){toast('Para crear usuarios nuevos, registralos desde el login y luego editá el perfil aquí.','info');cm('m-usuario');return}
+  const {error}=await sb.from('perfiles').update(payload).eq('id',id);
+  if(error){toast('Error: '+error.message,'error');return}
+  toast('✓ Usuario guardado','success');cm('m-usuario');await loadUsuarios();renderUsuarios();
+}
+
+/* ── MODALS: MEMBRESIA ── */
+function openMemPara(aid,nom){
+  document.getElementById('m-mem-title').textContent=`Membresía — ${nom}`;
+  document.getElementById('mem-aid').value=aid;
+  const sel=document.getElementById('mem-plan');
+  sel.innerHTML='<option value="">Seleccionar plan…</option>'+PLANES.map(p=>`<option value="${p.id}" data-cred="${p.creditos||0}">${p.nombre} — Bs ${p.precio_bs}</option>`).join('');
+  sel.onchange=()=>{const o=sel.options[sel.selectedIndex];document.getElementById('mem-cred').value=o.dataset.cred||''};
+  const h=new Date().toISOString().split('T')[0];
+  const ff=new Date();ff.setDate(ff.getDate()+30);
+  document.getElementById('mem-ini').value=h;
+  document.getElementById('mem-fin').value=ff.toISOString().split('T')[0];
+  document.getElementById('mem-cred').value='';
+  document.getElementById('m-mem').style.display='flex';
+}
+async function guardarMem(){
+  const aid=document.getElementById('mem-aid').value;
+  const pid=document.getElementById('mem-plan').value;
+  if(!pid){toast('Seleccioná un plan','error');return}
+  const {error}=await sb.from('membresias').insert({alumno_id:aid,plan_id:pid,fecha_inicio:document.getElementById('mem-ini').value,fecha_fin:document.getElementById('mem-fin').value,creditos_restantes:parseInt(document.getElementById('mem-cred').value)||0,estado:'activa'});
+  if(error){toast('Error: '+error.message,'error');return}
+  toast('✓ Membresía asignada','success');cm('m-mem');await loadMems();
+}
+
+/* ── MODALS: CREDITOS ── */
+function openCred(mid,nom,act){
+  document.getElementById('cred-mid').value=mid;
+  document.getElementById('cred-nom').textContent=nom;
+  document.getElementById('cred-act').value=act;
+  document.getElementById('cred-new').value=act;
+  document.getElementById('cred-mot').value='';
+  document.getElementById('m-cred').style.display='flex';
+}
+async function guardarCred(){
+  const id=document.getElementById('cred-mid').value;
+  const nv=parseInt(document.getElementById('cred-new').value);
+  if(isNaN(nv)||nv<0){toast('Ingresá un valor válido','error');return}
+  const {error}=await sb.from('membresias').update({creditos_restantes:nv}).eq('id',id);
+  if(error){toast('Error: '+error.message,'error');return}
+  toast('✓ Créditos actualizados','success');cm('m-cred');await loadMems();if(CURRENT==='membresias')renderMems();
+}
+async function toggleEstadoMem(id,est){
+  const estados=['activa','vencida','suspendida','pendiente'];
+  const sig=estados[(estados.indexOf(est)+1)%estados.length];
+  if(!confirm(`¿Cambiar estado a "${sig}"?`))return;
+  await sb.from('membresias').update({estado:sig}).eq('id',id);
+  toast(`Estado → ${sig}`,'info');await loadMems();renderMems();
+}
+
+/* ── MODALS: CLASE ── */
+function openNewClase(){
+  document.getElementById('m-cl-title').textContent='Nueva Clase';
+  ['cl-id','cl-nom','cl-fecha','cl-desc'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('cl-cap').value='6';
+  const ps=document.getElementById('cl-prof');
+  ps.innerHTML='<option value="">Sin asignar</option>'+USUARIOS.filter(u=>u.rol==='profesor'||u.rol==='admin').map(u=>`<option value="${u.id}">${u.nombre} ${u.apellido}</option>`).join('');
+  document.getElementById('m-clase').style.display='flex';
+}
+function editClase(id){
+  const c=CLASES.find(x=>x.id===id);if(!c)return;
+  document.getElementById('m-cl-title').textContent='Editar Clase';
+  document.getElementById('cl-id').value=c.id;
+  document.getElementById('cl-nom').value=c.nombre;
+  document.getElementById('cl-fecha').value=new Date(c.fecha_hora).toISOString().slice(0,16);
+  document.getElementById('cl-cap').value=c.capacidad||6;
+  document.getElementById('cl-mod').value=c.modalidad||'Reformer';
+  document.getElementById('cl-niv').value=c.nivel||'Todos los niveles';
+  document.getElementById('cl-desc').value=c.descripcion||'';
+  const ps=document.getElementById('cl-prof');
+  ps.innerHTML='<option value="">Sin asignar</option>'+USUARIOS.filter(u=>u.rol==='profesor'||u.rol==='admin').map(u=>`<option value="${u.id}" ${u.id===c.profesor_id?'selected':''}>${u.nombre} ${u.apellido}</option>`).join('');
+  document.getElementById('m-clase').style.display='flex';
+}
+async function guardarClase(){
+  const id=document.getElementById('cl-id').value;
+  const p={nombre:document.getElementById('cl-nom').value.trim(),fecha_hora:document.getElementById('cl-fecha').value,capacidad:parseInt(document.getElementById('cl-cap').value)||6,modalidad:document.getElementById('cl-mod').value,nivel:document.getElementById('cl-niv').value,descripcion:document.getElementById('cl-desc').value.trim()||null,profesor_id:document.getElementById('cl-prof').value||null,estado:'programada'};
+  if(!p.nombre||!p.fecha_hora){toast('Nombre y fecha son obligatorios','error');return}
+  const {error}=id?await sb.from('clases').update(p).eq('id',id):await sb.from('clases').insert(p);
+  if(error){toast('Error: '+error.message,'error');return}
+  toast('✓ Clase guardada','success');cm('m-clase');await loadClases();renderClases();
+}
+
+/* ── HELPERS ── */
+function set(html){document.getElementById('main-content').innerHTML=html}
+function sc(l,v,m,variant=''){return `<div class="stat-card ${variant}"><div class="stat-label">${l}</div><div class="stat-value">${v}</div><div class="stat-meta">${m}</div></div>`}
+function cm(id){document.getElementById(id).style.display='none'}
+function toast(msg,type='info'){const el=document.createElement('div');el.className=`toast ${type}`;el.textContent=msg;document.getElementById('toasts').appendChild(el);setTimeout(()=>el.remove(),3500)}
+async function logout(){await sb.auth.signOut();location.href='/index.html'}
+</script>
+</body>
+</html>
