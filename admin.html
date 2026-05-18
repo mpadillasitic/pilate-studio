@@ -488,7 +488,7 @@ function renderMems(){
     const ini=m.perfiles?(m.perfiles.nombre[0]+m.perfiles.apellido[0]).toUpperCase():'?';
     const eb={activa:'<span class="badge badge-green">Activa</span>',vencida:'<span class="badge badge-red">Vencida</span>',suspendida:'<span class="badge badge-yellow">Suspendida</span>',pendiente:'<span class="badge badge-stone">Pendiente</span>'}[m.estado]||`<span class="badge badge-stone">${m.estado}</span>`;
     const fin=m.fecha_fin?new Date(m.fecha_fin).toLocaleDateString('es-BO'):'—';
-    return `<tr><td class="td-name"><span class="avatar-xs">${ini}</span>${nom}</td><td>${m.planes?.nombre||'—'}</td><td style="font-variant-numeric:tabular-nums;color:var(--gold-muted);font-weight:500">${m.creditos_restantes??'—'}</td><td>${eb}</td><td style="color:var(--stone-dark)">${fin}</td><td><a onclick="openCred('${m.id}','${nom}',${m.creditos_restantes||0})" style="color:var(--gold-muted);cursor:pointer;font-size:11px;margin-right:8px">Créditos</a><a onclick="toggleEstadoMem('${m.id}','${m.estado}')" style="color:var(--stone-dark);cursor:pointer;font-size:11px">Estado</a></td></tr>`;
+    return `<tr><td class="td-name"><span class="avatar-xs">${ini}</span>${nom}</td><td>${m.planes?.nombre||'—'}</td><td style="font-variant-numeric:tabular-nums;color:var(--gold-muted);font-weight:500">${(m.creditos_total??0)-(m.creditos_usados??0)}</td><td>${eb}</td><td style="color:var(--stone-dark)">${fin}</td><td><a onclick="openCred('${m.id}','${nom}',${m.creditos_total||0})" style="color:var(--gold-muted);cursor:pointer;font-size:11px;margin-right:8px">Créditos</a><a onclick="toggleEstadoMem('${m.id}','${m.estado}')" style="color:var(--stone-dark);cursor:pointer;font-size:11px">Estado</a></td></tr>`;
   }).join('');
   set(`<div class="search-bar"><input class="search-input" placeholder="Buscar por alumno o plan…" oninput="Q=this.value;renderMems()" value="${q}"></div>
   <div class="card"><div class="card-header"><div class="card-title">Membresías</div><div class="card-actions"><span class="pill">${fil.length}</span></div></div><div class="table-wrap"><table><thead><tr><th>Alumno</th><th>Plan</th><th>Créditos</th><th>Estado</th><th>Vence</th><th>Acciones</th></tr></thead><tbody>${rows||`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--stone)">Sin membresías</td></tr>`}</tbody></table></div></div>`);
@@ -647,7 +647,7 @@ function exportarMembresias(){
     'Alumno':m.perfiles?`${m.perfiles.nombre} ${m.perfiles.apellido}`:'—',
     'Plan':m.planes?.nombre||'—',
     'Precio (Bs)':m.planes?.precio_bs||'—',
-    'Créditos restantes':m.creditos_restantes??'—',
+    'Créditos restantes':(m.creditos_total??0)-(m.creditos_usados??0),
     'Estado':m.estado,
     'Fecha inicio':m.fecha_inicio?new Date(m.fecha_inicio).toLocaleDateString('es-BO'):'—',
     'Fecha fin':m.fecha_fin?new Date(m.fecha_fin).toLocaleDateString('es-BO'):'—',
@@ -687,7 +687,7 @@ function exportarLicencias(){
 function exportarCompleto(){
   const hojas=[
     {nombre:'Alumnos',data:USUARIOS.map(u=>({'Nombre':u.nombre,'Apellido':u.apellido,'Teléfono':u.telefono||'—','Rol':u.rol,'Estado':u.activo?'Activo':'Inactivo','Fecha registro':new Date(u.created_at).toLocaleDateString('es-BO')}))},
-    {nombre:'Membresías',data:MEMS.map(m=>({'Alumno':m.perfiles?`${m.perfiles.nombre} ${m.perfiles.apellido}`:'—','Plan':m.planes?.nombre||'—','Créditos restantes':m.creditos_restantes??'—','Estado':m.estado,'Vence':m.fecha_fin?new Date(m.fecha_fin).toLocaleDateString('es-BO'):'—'}))},
+    {nombre:'Membresías',data:MEMS.map(m=>({'Alumno':m.perfiles?`${m.perfiles.nombre} ${m.perfiles.apellido}`:'—','Plan':m.planes?.nombre||'—','Créditos restantes':(m.creditos_total??0)-(m.creditos_usados??0),'Estado':m.estado,'Vence':m.fecha_fin?new Date(m.fecha_fin).toLocaleDateString('es-BO'):'—'}))},
     {nombre:'Clases',data:CLASES.map(c=>({'Nombre':c.nombre,'Fecha':c.fecha_hora?new Date(c.fecha_hora).toLocaleDateString('es-BO'):'—','Hora':c.fecha_hora?new Date(c.fecha_hora).toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'}):'—','Modalidad':c.modalidad||'—','Profesor':c.perfiles?`${c.perfiles.nombre} ${c.perfiles.apellido}`:'Sin asignar','Inscritos':c.alumnos_inscritos||0,'Estado':c.estado||'—'}))},
     {nombre:'Licencias',data:LICS.map(l=>({'Alumno':l.perfiles?`${l.perfiles.nombre} ${l.perfiles.apellido}`:'—','Fecha clase':l.fecha_clase?new Date(l.fecha_clase).toLocaleDateString('es-BO'):'—','Motivo':l.motivo||'—','Estado':l.estado,'Solicitada':new Date(l.created_at).toLocaleDateString('es-BO')}))},
   ];
@@ -770,7 +770,7 @@ async function guardarMem(){
   const aid=document.getElementById('mem-aid').value;
   const pid=document.getElementById('mem-plan').value;
   if(!pid){toast('Seleccioná un plan','error');return}
-  const {error}=await sb.from('membresias').insert({alumno_id:aid,plan_id:pid,fecha_inicio:document.getElementById('mem-ini').value,fecha_fin:document.getElementById('mem-fin').value,creditos_restantes:parseInt(document.getElementById('mem-cred').value)||0,estado:'activa'});
+  const {error}=await sb.from('membresias').insert({alumno_id:aid,plan_id:pid,fecha_inicio:document.getElementById('mem-ini').value,fecha_fin:document.getElementById('mem-fin').value,creditos_total:parseInt(document.getElementById('mem-cred').value)||0,creditos_usados:0,estado:'activa'});
   if(error){toast('Error: '+error.message,'error');return}
   toast('✓ Membresía asignada','success');cm('m-mem');await loadMems();
 }
@@ -788,7 +788,8 @@ async function guardarCred(){
   const id=document.getElementById('cred-mid').value;
   const nv=parseInt(document.getElementById('cred-new').value);
   if(isNaN(nv)||nv<0){toast('Ingresá un valor válido','error');return}
-  await sb.from('membresias').update({creditos_restantes:nv}).eq('id',id);
+  const {error}=await sb.from('membresias').update({creditos_total:nv,creditos_usados:0}).eq('id',id);
+  if(error){toast('Error: '+error.message,'error');return}
   toast('✓ Créditos actualizados','success');cm('m-cred');await loadMems();if(CURRENT==='membresias')renderMems();
 }
 async function toggleEstadoMem(id,est){
