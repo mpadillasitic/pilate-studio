@@ -9,37 +9,21 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --cream:         #FAF7F2;
-      --warm-white:    #FDFCFA;
-      --stone-light:   #EDE8DE;
-      --stone:         #C4B89A;
-      --stone-dark:    #8C7A5E;
-      --charcoal:      #1C1C1A;
-      --charcoal-soft: #2E2E2B;
-      --charcoal-mid:  #4A4A45;
-      --gold:          #C9A96E;
-      --gold-muted:    #A08545;
-      --gold-light:    #E8D5B0;
-      --sage:          #7A8C74;
-      --sage-light:    #B8C4B2;
-      --sage-pale:     #E8EDE6;
-      --sidebar-bg:    #1a2e1f;
-      --radius:        12px;
-      --radius-sm:     8px;
-      --shadow-card:   0 4px 40px rgba(28,28,26,0.08);
+      --cream:#FAF7F2;--warm-white:#FDFCFA;--stone-light:#EDE8DE;--stone:#C4B89A;
+      --stone-dark:#8C7A5E;--charcoal:#1C1C1A;--charcoal-soft:#2E2E2B;--charcoal-mid:#4A4A45;
+      --gold:#C9A96E;--gold-muted:#A08545;--gold-light:#E8D5B0;
+      --sage:#7A8C74;--sage-light:#B8C4B2;--sage-pale:#E8EDE6;
+      --sidebar-bg:#1a2e1f;--radius:12px;--radius-sm:8px;--shadow-card:0 4px 40px rgba(28,28,26,0.08);
     }
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%;font-family:'DM Sans',system-ui,sans-serif;background:var(--cream);color:var(--charcoal);font-size:14px;-webkit-font-smoothing:antialiased}
     ::-webkit-scrollbar{width:4px;height:4px}
-    ::-webkit-scrollbar-track{background:transparent}
     ::-webkit-scrollbar-thumb{background:var(--stone-light);border-radius:4px}
-
-    /* LAYOUT */
     #app{display:flex;height:100vh;overflow:hidden}
 
     /* SIDEBAR */
     .sidebar{width:220px;flex-shrink:0;background:var(--sidebar-bg);display:flex;flex-direction:column;overflow-y:auto}
-    .sidebar-logo{padding:26px 20px 18px;border-bottom:1px solid rgba(196,184,154,0.1)}
+    .sidebar-logo{padding:26px 20px 18px;border-bottom:1px solid rgba(196,184,154,.1)}
     .sidebar-logo .wordmark{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;letter-spacing:.08em;color:rgba(250,247,242,.88)}
     .sidebar-logo .sub{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--stone);margin-top:3px}
     .nav-section{padding:16px 12px 0}
@@ -67,11 +51,16 @@
     .content{padding:28px;flex:1}
 
     /* BUTTONS */
-    .btn{padding:8px 18px;border-radius:99px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px;letter-spacing:.02em}
+    .btn{padding:8px 18px;border-radius:99px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
     .btn-primary{background:var(--charcoal);color:var(--cream)}
     .btn-primary:hover{background:var(--charcoal-soft);transform:translateY(-1px)}
     .btn-ghost{background:transparent;border:1.5px solid var(--stone-light);color:var(--charcoal-mid)}
     .btn-ghost:hover{border-color:var(--stone);background:var(--stone-light);color:var(--charcoal)}
+    .btn-sm{padding:5px 12px;border-radius:99px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;border:none;transition:all .2s}
+    .btn-approve{background:#e8f5ee;color:#2d7a4f;border:1px solid #b8deca}
+    .btn-approve:hover{background:#2d7a4f;color:#fff}
+    .btn-reject{background:#fdf0ef;color:#a83232;border:1px solid #e8b8b8}
+    .btn-reject:hover{background:#a83232;color:#fff}
 
     /* STATS */
     .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:26px}
@@ -105,13 +94,12 @@
     .badge-red{background:#fdf0ef;color:#a83232;border:1px solid #e8b8b8}
     .badge-blue{background:#eef4fb;color:#2a5c8a;border:1px solid #b8d0e8}
     .badge-stone{background:var(--stone-light);color:var(--stone-dark);border:1px solid var(--stone)}
-    .badge-sage{background:var(--sage-pale);color:var(--sage);border:1px solid var(--sage-light)}
 
     /* TABLE */
     .table-wrap{overflow-x:auto}
     table{width:100%;border-collapse:collapse}
     th{text-align:left;padding:10px 20px;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--stone-dark);font-weight:500;border-bottom:1px solid var(--stone-light)}
-    td{padding:11px 20px;font-size:12px;border-bottom:1px solid var(--stone-light);color:var(--charcoal-mid)}
+    td{padding:10px 20px;font-size:12px;border-bottom:1px solid var(--stone-light);color:var(--charcoal-mid)}
     tr:last-child td{border-bottom:none}
     tr:hover td{background:var(--stone-light)}
     .td-name{color:var(--charcoal);font-weight:500}
@@ -122,8 +110,6 @@
     .eval-item{background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm);padding:14px 16px}
     .eval-alumno{font-size:13px;color:var(--charcoal);font-weight:500}
     .eval-tipo{font-size:11px;color:var(--stone-dark);margin-top:2px;font-weight:300}
-    .eval-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
-    .tag{background:var(--stone-light);border:1px solid var(--stone);padding:2px 8px;border-radius:4px;font-size:10px;color:var(--stone-dark)}
 
     /* LICENCIAS */
     .lic-item{padding:14px 20px;border-bottom:1px solid var(--stone-light);display:flex;align-items:flex-start;gap:12px}
@@ -133,11 +119,13 @@
     .lic-motivo{font-size:11px;color:var(--stone-dark);margin-top:2px;font-weight:300}
     .lic-meta{font-size:10px;color:var(--stone);margin-top:4px}
     .lic-actions{display:flex;gap:6px;flex-shrink:0}
-    .btn-sm{padding:5px 12px;border-radius:99px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;border:none;transition:all .2s}
-    .btn-approve{background:#e8f5ee;color:#2d7a4f;border:1px solid #b8deca}
-    .btn-approve:hover{background:#2d7a4f;color:#fff}
-    .btn-reject{background:#fdf0ef;color:#a83232;border:1px solid #e8b8b8}
-    .btn-reject:hover{background:#a83232;color:#fff}
+
+    /* INFO BOX */
+    .info-box{background:var(--sage-pale);border:1px solid var(--sage-light);border-radius:var(--radius-sm);padding:12px 16px;font-size:12px;color:var(--sage);font-weight:300;line-height:1.5}
+
+    /* EMPTY */
+    .empty-state{padding:48px 24px;text-align:center;color:var(--stone-dark);font-size:13px;font-weight:300;line-height:1.6}
+    .empty-icon{font-size:24px;margin-bottom:10px;opacity:.5}
 
     /* MODAL */
     .modal-overlay{position:fixed;inset:0;background:rgba(28,28,26,.5);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
@@ -156,14 +144,6 @@
     .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--stone)}
     .form-textarea{resize:vertical;min-height:80px}
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-
-    /* INFO BOX */
-    .info-box{background:var(--sage-pale);border:1px solid var(--sage-light);border-radius:var(--radius-sm);padding:12px 16px;font-size:12px;color:var(--sage);font-weight:300;line-height:1.5}
-    .info-box strong{font-weight:500}
-
-    /* EMPTY */
-    .empty-state{padding:48px 24px;text-align:center;color:var(--stone-dark);font-size:13px;font-weight:300;line-height:1.6}
-    .empty-icon{font-size:24px;margin-bottom:10px;opacity:.5}
 
     /* TOAST */
     .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px}
@@ -186,13 +166,13 @@
     </div>
     <div class="nav-section" style="margin-top:8px">
       <div class="nav-label">Hoy</div>
-      <button class="nav-item active" onclick="switchScreen('hoy')"><span class="nav-dot"></span>Mis Clases</button>
-      <button class="nav-item" onclick="switchScreen('alumnos')"><span class="nav-dot"></span>Alumnos<span class="nav-badge" id="badge-alumnos">—</span></button>
+      <button class="nav-item active" onclick="sw('hoy')"><span class="nav-dot"></span>Mis Clases</button>
+      <button class="nav-item" onclick="sw('alumnos')"><span class="nav-dot"></span>Alumnos<span class="nav-badge" id="badge-alumnos">—</span></button>
     </div>
     <div class="nav-section" style="margin-top:14px">
       <div class="nav-label">Gestión</div>
-      <button class="nav-item" onclick="switchScreen('licencias')"><span class="nav-dot"></span>Licencias<span class="nav-badge" id="badge-lic" style="display:none">0</span></button>
-      <button class="nav-item" onclick="switchScreen('evaluaciones')"><span class="nav-dot"></span>Evaluaciones</button>
+      <button class="nav-item" onclick="sw('licencias')"><span class="nav-dot"></span>Licencias<span class="nav-badge" id="badge-lic" style="display:none">0</span></button>
+      <button class="nav-item" onclick="sw('evaluaciones')"><span class="nav-dot"></span>Evaluaciones</button>
     </div>
     <div class="nav-spacer"></div>
     <div class="sidebar-user">
@@ -249,10 +229,10 @@
         <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="e-fecha"></div>
         <div class="form-group"><label class="form-label">Tipo</label><select class="form-select" id="e-tipo"><option value="inicial">Evaluación Inicial</option><option value="seguimiento">Seguimiento</option><option value="postural">Postural</option></select></div>
       </div>
-      <div class="form-group"><label class="form-label">Objetivos del alumno</label><input type="text" class="form-input" id="e-obj" placeholder="Mejorar postura, fortalecer core…"></div>
-      <div class="form-group"><label class="form-label">Observaciones posturales</label><textarea class="form-textarea" id="e-post" placeholder="Postura, alineación, compensaciones…"></textarea></div>
-      <div class="form-group"><label class="form-label">Plan de trabajo</label><textarea class="form-textarea" id="e-plan" placeholder="Ejercicios recomendados, progresión…"></textarea></div>
-      <div class="form-group"><label class="form-label">Notas adicionales</label><textarea class="form-textarea" id="e-notas" style="min-height:60px" placeholder="Comentarios libres…"></textarea></div>
+      <div class="form-group"><label class="form-label">Objetivos</label><input type="text" class="form-input" id="e-obj" placeholder="Mejorar postura, fortalecer core…"></div>
+      <div class="form-group"><label class="form-label">Observaciones posturales</label><textarea class="form-textarea" id="e-post"></textarea></div>
+      <div class="form-group"><label class="form-label">Plan de trabajo</label><textarea class="form-textarea" id="e-plan"></textarea></div>
+      <div class="form-group"><label class="form-label">Notas adicionales</label><textarea class="form-textarea" id="e-notas" style="min-height:60px"></textarea></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="cm('m-eval')">Cancelar</button>
@@ -277,16 +257,16 @@
 </div>
 
 <script>
-const SB_URL = 'https://yeaejlbahtkrrsttbprb.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InllYWVqbGJhaHRrcnJzdHRicHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Nzk3NTIsImV4cCI6MjA5NDU1NTc1Mn0.gpzc8sNIifOtfbA02nITKF9od8B9thSXlOyKrlA3ic0';
-const sb = supabase.createClient(SB_URL, SB_KEY);
+const SB_URL='https://yeaejlbahtkrrsttbprb.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InllYWVqbGJhaHRrcnJzdHRicHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Nzk3NTIsImV4cCI6MjA5NDU1NTc1Mn0.gpzc8sNIifOtfbA02nITKF9od8B9thSXlOyKrlA3ic0';
+const sb=supabase.createClient(SB_URL,SB_KEY);
 
-let PROF=null, CLASES=[], ALUMNOS=[], LICENCIAS=[], EVALS=[], SELECTED=null, SCREEN='hoy', ASIST={};
+let PROF=null,CLASES=[],ALUMNOS=[],LICENCIAS=[],EVALS=[],SELECTED=null,SCREEN='hoy',ASIST={};
 
-window.addEventListener('DOMContentLoaded', async ()=>{
-  const {data:{session}} = await sb.auth.getSession();
+window.addEventListener('DOMContentLoaded',async()=>{
+  const {data:{session}}=await sb.auth.getSession();
   if(!session){location.href='/index.html';return}
-  const {data:p} = await sb.from('perfiles').select('*').eq('id',session.user.id).single();
+  const {data:p}=await sb.from('perfiles').select('*').eq('id',session.user.id).single();
   if(!p||(p.rol!=='profesor'&&p.rol!=='admin')){toast('Acceso denegado','error');setTimeout(()=>location.href='/index.html',2000);return}
   PROF=p;
   document.getElementById('sb-avatar').textContent=(p.nombre[0]+p.apellido[0]).toUpperCase();
@@ -294,36 +274,58 @@ window.addEventListener('DOMContentLoaded', async ()=>{
   const hoyStr=new Date().toLocaleDateString('es-BO',{weekday:'long',day:'numeric',month:'long'});
   document.getElementById('tp-sub').textContent=hoyStr.charAt(0).toUpperCase()+hoyStr.slice(1);
   await Promise.all([loadClases(),loadAlumnos(),loadLicencias(),loadEvals()]);
-  switchScreen('hoy');
+  sw('hoy');
 });
 
 async function loadClases(){
+  // Columnas reales: titulo, fecha, hora_inicio, instructor_id, tipo
   const hoy=new Date().toISOString().split('T')[0];
-  const {data}=await sb.from('clases').select('*').eq('profesor_id',PROF.id)
-    .gte('fecha_hora',hoy+'T00:00:00').lte('fecha_hora',hoy+'T23:59:59').order('fecha_hora');
+  const {data}=await sb.from('clases')
+    .select('*')
+    .eq('instructor_id',PROF.id)
+    .eq('fecha',hoy)
+    .order('hora_inicio');
   CLASES=data||[];
 }
+
 async function loadAlumnos(){
-  const {data}=await sb.from('perfiles').select('*,membresias(estado,plan_id,creditos_restantes,fecha_fin,planes(nombre))').eq('rol','alumno').eq('activo',true).order('nombre');
+  const {data}=await sb.from('perfiles')
+    .select('*,membresias(estado,creditos_total,creditos_usados,fecha_fin,planes(nombre))')
+    .eq('rol','alumno')
+    .eq('activo',true)
+    .order('nombre');
   ALUMNOS=data||[];
   document.getElementById('badge-alumnos').textContent=ALUMNOS.length;
 }
+
 async function loadLicencias(){
-  const {data}=await sb.from('licencias').select('*,perfiles!licencias_alumno_id_fkey(nombre,apellido)').eq('estado','pendiente').order('created_at');
+  const {data}=await sb.from('licencias')
+    .select('*,perfiles!licencias_alumno_id_fkey(nombre,apellido)')
+    .eq('estado','pendiente')
+    .order('created_at');
   LICENCIAS=data||[];
   const b=document.getElementById('badge-lic');
   if(LICENCIAS.length>0){b.textContent=LICENCIAS.length;b.style.display=''}else b.style.display='none';
 }
+
 async function loadEvals(){
-  const {data}=await sb.from('evaluaciones').select('*,perfiles!evaluaciones_alumno_id_fkey(nombre,apellido)').eq('profesor_id',PROF.id).order('created_at',{ascending:false}).limit(30);
+  const {data}=await sb.from('evaluaciones')
+    .select('*,perfiles!evaluaciones_alumno_id_fkey(nombre,apellido)')
+    .eq('evaluador_id',PROF.id)
+    .order('created_at',{ascending:false})
+    .limit(30);
   EVALS=data||[];
 }
-async function loadReservas(cid){
-  const {data}=await sb.from('reservas').select('*,perfiles!reservas_alumno_id_fkey(nombre,apellido)').eq('clase_id',cid).neq('estado','cancelada');
+
+async function loadReservas(claseId){
+  const {data}=await sb.from('reservas')
+    .select('*,perfiles!reservas_alumno_id_fkey(nombre,apellido)')
+    .eq('clase_id',claseId)
+    .neq('estado','cancelada');
   return data||[];
 }
 
-function switchScreen(s){
+function sw(s){
   SCREEN=s;
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   [{hoy:0,alumnos:1,licencias:2,evaluaciones:3}[s]].forEach(i=>document.querySelectorAll('.nav-item')[i]?.classList.add('active'));
@@ -334,17 +336,19 @@ function switchScreen(s){
 
 function renderHoy(){
   if(!CLASES.length){
-    set(`<div class="stat-grid">${sc('Clases hoy','0','Sin programadas')}${sc('Alumnos',ALUMNOS.length,'En el sistema')}${sc('Licencias',LICENCIAS.length,'Pendientes')}${sc('Evaluaciones',EVALS.length,'Realizadas')}</div><div class="card"><div class="empty-state"><div class="empty-icon">☀️</div>No tenés clases programadas para hoy.</div></div>`);
+    set(`<div class="stat-grid">${sc('Clases hoy','0','Sin programadas')}${sc('Alumnos',ALUMNOS.length,'En el sistema')}${sc('Licencias',LICENCIAS.length,'Pendientes')}${sc('Evaluaciones',EVALS.length,'Realizadas')}</div>
+    <div class="card"><div class="empty-state"><div class="empty-icon">☀️</div>No tenés clases programadas para hoy.</div></div>`);
     return;
   }
   const now=new Date();
   const items=CLASES.map(c=>{
-    const f=new Date(c.fecha_hora);
-    const h=f.toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'});
-    const bd=f<new Date(now-3600000)?'<span class="badge badge-stone">Pasada</span>':f>now?'<span class="badge badge-blue">Próxima</span>':'<span class="badge badge-green">En curso</span>';
-    return `<div class="clase-item${SELECTED?.id===c.id?' selected':''}" onclick="selectClase('${c.id}')">
+    // hora_inicio es "HH:MM:SS", mostrar solo HH:MM
+    const h=c.hora_inicio?.slice(0,5)||'—';
+    const isSelected=SELECTED?.id===c.id;
+    const bd=`<span class="badge badge-blue">Programada</span>`;
+    return `<div class="clase-item${isSelected?' selected':''}" onclick="selectClase('${c.id}')">
       <div class="clase-hora">${h}</div>
-      <div><div class="clase-nombre">${c.nombre}</div><div class="clase-info">${c.modalidad||'Reformer'} · Cap. ${c.capacidad||'—'}</div></div>
+      <div><div class="clase-nombre">${c.titulo}</div><div class="clase-info">${c.tipo||'Reformer'}</div></div>
       <div class="clase-right">${bd}<span style="color:var(--stone);font-size:18px">›</span></div>
     </div>`;
   }).join('');
@@ -359,14 +363,14 @@ async function selectClase(id){
   SELECTED=CLASES.find(c=>c.id===id);
   document.getElementById('detail-panel').innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">·</div>Cargando alumnos…</div></div>`;
   const reservas=await loadReservas(id);
-  const h=new Date(SELECTED.fecha_hora).toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'});
+  const h=SELECTED.hora_inicio?.slice(0,5)||'—';
   const rows=reservas.length>0?reservas.map(r=>{
     const nom=r.perfiles?`${r.perfiles.nombre} ${r.perfiles.apellido}`:'—';
     const ini=r.perfiles?(r.perfiles.nombre[0]+r.perfiles.apellido[0]).toUpperCase():'?';
     const eb={confirmada:'<span class="badge badge-green">Presente</span>',licencia:'<span class="badge badge-yellow">Licencia</span>',recuperacion:'<span class="badge badge-blue">Recup.</span>',ausente:'<span class="badge badge-red">Ausente</span>'}[r.estado]||`<span class="badge badge-stone">${r.estado}</span>`;
     return `<tr><td class="td-name"><span class="avatar-xs">${ini}</span>${nom}</td><td>${eb}</td><td><a onclick="abrirEvalPara('${r.alumno_id}','${nom}')" style="color:var(--gold-muted);cursor:pointer;font-size:11px">+ Eval</a></td></tr>`;
   }).join(''):`<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--stone)">Sin reservas confirmadas</td></tr>`;
-  document.getElementById('detail-panel').innerHTML=`<div class="card"><div class="card-header"><div><div class="card-title">${SELECTED.nombre}</div><div style="font-size:11px;color:var(--stone-dark);margin-top:2px">${h} · ${reservas.length} alumno${reservas.length!==1?'s':''}</div></div><div class="card-actions"><button class="btn btn-primary" onclick="openMarcarAsistencia()">✓ Asistencia</button></div></div><div class="table-wrap"><table><thead><tr><th>Alumno/a</th><th>Estado</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  document.getElementById('detail-panel').innerHTML=`<div class="card"><div class="card-header"><div><div class="card-title">${SELECTED.titulo}</div><div style="font-size:11px;color:var(--stone-dark);margin-top:2px">${h} · ${reservas.length} alumno${reservas.length!==1?'s':''}</div></div><div class="card-actions"><button class="btn btn-primary" onclick="openMarcarAsistencia()">✓ Asistencia</button></div></div><div class="table-wrap"><table><thead><tr><th>Alumno/a</th><th>Estado</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
   renderHoy();
 }
 
@@ -375,28 +379,28 @@ function renderAlumnos(){
   const rows=ALUMNOS.map(a=>{
     const m=a.membresias?.[0];
     const plan=m?.planes?.nombre||'—';
-    const cred=m?.creditos_restantes??'—';
+    const cred=m?(m.creditos_total??0)-(m.creditos_usados??0):'—';
     const eb={activa:'<span class="badge badge-green">Activa</span>',vencida:'<span class="badge badge-red">Vencida</span>',suspendida:'<span class="badge badge-yellow">Suspendida</span>'}[m?.estado]||'<span class="badge badge-stone">—</span>';
     const ini=(a.nombre[0]+a.apellido[0]).toUpperCase();
     const fin=m?.fecha_fin?new Date(m.fecha_fin).toLocaleDateString('es-BO'):'—';
-    return `<tr><td class="td-name"><span class="avatar-xs">${ini}</span>${a.nombre} ${a.apellido}</td><td>${plan}</td><td style="font-variant-numeric:tabular-nums;color:var(--gold-muted);font-weight:500">${cred}</td><td>${eb}</td><td style="color:var(--stone-dark)">${fin}</td><td><a onclick="abrirEvalPara('${a.id}','${a.nombre} ${a.apellido}')" style="color:var(--gold-muted);cursor:pointer;font-size:11px;margin-right:8px">+ Eval</a><a onclick="verHistorial('${a.id}','${a.nombre} ${a.apellido}')" style="color:var(--stone-dark);cursor:pointer;font-size:11px">Historial</a></td></tr>`;
+    return `<tr><td class="td-name"><span class="avatar-xs">${ini}</span>${a.nombre} ${a.apellido}</td><td>${plan}</td><td style="color:var(--gold-muted);font-weight:500">${cred}</td><td>${eb}</td><td>${fin}</td><td><a onclick="abrirEvalPara('${a.id}','${a.nombre} ${a.apellido}')" style="color:var(--gold-muted);cursor:pointer;font-size:11px;margin-right:8px">+ Eval</a><a onclick="verHistorial('${a.id}','${a.nombre} ${a.apellido}')" style="color:var(--stone-dark);cursor:pointer;font-size:11px">Historial</a></td></tr>`;
   }).join('');
   set(`<div class="card"><div class="card-header"><div class="card-title">Alumnos Activos</div><div class="card-actions"><span class="pill">${ALUMNOS.length} alumno${ALUMNOS.length!==1?'s':''}</span></div></div><div class="table-wrap"><table><thead><tr><th>Nombre</th><th>Plan</th><th>Créditos</th><th>Membresía</th><th>Vence</th><th>Acciones</th></tr></thead><tbody>${rows}</tbody></table></div></div>`);
 }
 
 function renderLicencias(){
-  if(!LICENCIAS.length){set(`<div class="card"><div class="empty-state"><div class="empty-icon">✓</div>No hay licencias pendientes de revisión.</div></div>`);return}
+  if(!LICENCIAS.length){set(`<div class="card"><div class="empty-state"><div class="empty-icon">✓</div>No hay licencias pendientes.</div></div>`);return}
   const items=LICENCIAS.map(l=>{
     const nom=l.perfiles?`${l.perfiles.nombre} ${l.perfiles.apellido}`:'—';
     const fc=new Date(l.fecha_clase).toLocaleDateString('es-BO',{weekday:'short',day:'numeric',month:'short'});
     const sol=new Date(l.created_at).toLocaleString('es-BO',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
     return `<div class="lic-item"><div class="lic-info"><div class="lic-name">${nom}</div><div class="lic-motivo">Clase: ${fc} · ${l.motivo||'Sin motivo'}</div><div class="lic-meta">Solicitada: ${sol}</div></div><div class="lic-actions"><button class="btn-sm btn-approve" onclick="resolverLic('${l.id}','aprobada')">✓ Aprobar</button><button class="btn-sm btn-reject" onclick="resolverLic('${l.id}','rechazada')">✕ Rechazar</button></div></div>`;
   }).join('');
-  set(`<div class="card"><div class="card-header"><div class="card-title">Licencias Pendientes</div><div class="card-actions"><span class="pill">${LICENCIAS.length} pendiente${LICENCIAS.length!==1?'s':''}</span></div></div>${items}</div><div class="info-box" style="margin-top:12px"><strong>Regla:</strong> Los alumnos pueden solicitar licencia hasta 2 horas antes de la clase. Las aprobadas devuelven el crédito.</div>`);
+  set(`<div class="card"><div class="card-header"><div class="card-title">Licencias Pendientes</div><div class="card-actions"><span class="pill">${LICENCIAS.length}</span></div></div>${items}</div>
+  <div class="info-box" style="margin-top:12px"><strong>Regla:</strong> Las licencias aprobadas hasta 2 horas antes de la clase devuelven el crédito automáticamente.</div>`);
 }
 async function resolverLic(id,estado){
-  const {error}=await sb.from('licencias').update({estado}).eq('id',id);
-  if(error){toast('Error: '+error.message,'error');return}
+  await sb.from('licencias').update({estado}).eq('id',id);
   toast(estado==='aprobada'?'✓ Licencia aprobada':'Licencia rechazada',estado==='aprobada'?'success':'info');
   await loadLicencias();renderLicencias();
 }
@@ -405,14 +409,24 @@ function renderEvals(){
   const items=EVALS.map(e=>{
     const nom=e.perfiles?`${e.perfiles.nombre} ${e.perfiles.apellido}`:'—';
     const f=new Date(e.created_at).toLocaleDateString('es-BO',{day:'numeric',month:'long',year:'numeric'});
-    return `<div class="eval-item"><div style="display:flex;align-items:center;justify-content:space-between"><div class="eval-alumno">${nom}</div><div style="font-size:10px;color:var(--stone)">${f}</div></div><div class="eval-tipo">${e.tipo||'Evaluación'}</div>${e.objetivos?`<div class="eval-tags"><span class="tag">${e.objetivos.slice(0,50)}${e.objetivos.length>50?'…':''}</span></div>`:''}<div style="margin-top:8px"><a onclick='verEval(${JSON.stringify(e).replace(/'/g,"\\'")})'  style="font-size:11px;color:var(--gold-muted);cursor:pointer">Ver detalles ›</a></div></div>`;
+    const tieneArchivo=!!e.archivo_url;
+    return `<div class="eval-item">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div><div class="eval-alumno">${nom}</div><div class="eval-tipo">${e.tipo||'Evaluación'} · ${f}</div></div>
+        <a onclick='verEval(${JSON.stringify(e).replace(/'/g,"\\'")})'  style="font-size:11px;color:var(--gold-muted);cursor:pointer">Ver ›</a>
+      </div>
+      ${e.objetivos?`<div style="font-size:12px;color:var(--stone-dark);margin-top:8px;line-height:1.5;font-weight:300">${e.objetivos.slice(0,80)}${e.objetivos.length>80?'…':''}</div>`:''}
+      ${tieneArchivo?`<div style="margin-top:8px;font-size:11px"><a href="${e.archivo_url}" target="_blank" style="color:var(--gold-muted)">📎 Ver archivo adjunto</a></div>`:''}
+    </div>`;
   }).join('');
-  set(EVALS.length?`<div class="card"><div class="card-header"><div class="card-title">Historial de Evaluaciones</div><div class="card-actions"><span class="pill">${EVALS.length}</span></div></div><div class="eval-list">${items}</div></div>`:`<div class="card"><div class="empty-state"><div class="empty-icon">📊</div>Sin evaluaciones registradas aún.</div></div>`);
+  set(EVALS.length
+    ?`<div class="card"><div class="card-header"><div class="card-title">Evaluaciones</div><div class="card-actions"><span class="pill">${EVALS.length}</span></div></div><div class="eval-list">${items}</div></div>`
+    :`<div class="card"><div class="empty-state"><div class="empty-icon">📊</div>Sin evaluaciones registradas.</div></div>`);
 }
 
 async function openMarcarAsistencia(){
   if(!SELECTED){toast('Seleccioná una clase primero','info');return}
-  document.getElementById('m-asistencia-title').textContent=SELECTED.nombre;
+  document.getElementById('m-asistencia-title').textContent=SELECTED.titulo;
   document.getElementById('m-asistencia').style.display='flex';
   const reservas=await loadReservas(SELECTED.id);
   ASIST[SELECTED.id]={};
@@ -420,7 +434,13 @@ async function openMarcarAsistencia(){
   const rows=reservas.map(r=>{
     const nom=r.perfiles?`${r.perfiles.nombre} ${r.perfiles.apellido}`:'—';
     ASIST[SELECTED.id][r.id]=r.estado;
-    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--stone-light)"><div style="flex:1;font-size:13px;color:var(--charcoal)">${nom}</div><select style="background:var(--cream);border:1.5px solid var(--stone-light);border-radius:8px;padding:5px 9px;color:var(--charcoal);font-family:'DM Sans',sans-serif;font-size:12px;outline:none" onchange="ASIST['${SELECTED.id}']['${r.id}']=this.value"><option value="confirmada" ${r.estado==='confirmada'?'selected':''}>Presente</option><option value="ausente" ${r.estado==='ausente'?'selected':''}>Ausente</option><option value="licencia" ${r.estado==='licencia'?'selected':''}>Licencia</option><option value="recuperacion" ${r.estado==='recuperacion'?'selected':''}>Recuperación</option></select></div>`;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--stone-light)"><div style="flex:1;font-size:13px;color:var(--charcoal)">${nom}</div>
+    <select style="background:var(--cream);border:1.5px solid var(--stone-light);border-radius:8px;padding:5px 9px;color:var(--charcoal);font-family:'DM Sans',sans-serif;font-size:12px;outline:none" onchange="ASIST['${SELECTED.id}']['${r.id}']=this.value">
+      <option value="confirmada" ${r.estado==='confirmada'?'selected':''}>Presente</option>
+      <option value="ausente" ${r.estado==='ausente'?'selected':''}>Ausente</option>
+      <option value="licencia" ${r.estado==='licencia'?'selected':''}>Licencia</option>
+      <option value="recuperacion" ${r.estado==='recuperacion'?'selected':''}>Recuperación</option>
+    </select></div>`;
   }).join('');
   document.getElementById('m-asistencia-body').innerHTML=`<div style="font-size:12px;color:var(--stone-dark);margin-bottom:12px">${reservas.length} alumno${reservas.length!==1?'s':''} inscriptos</div>${rows}`;
 }
@@ -437,13 +457,21 @@ function openEval(){
   ['e-obj','e-post','e-plan','e-notas'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('m-eval').style.display='flex';
 }
-function abrirEvalPara(aid,nom){
-  openEval();setTimeout(()=>document.getElementById('e-alumno').value=aid,50);
-}
+function abrirEvalPara(aid,nom){openEval();setTimeout(()=>document.getElementById('e-alumno').value=aid,50)}
 async function guardarEval(){
   const aid=document.getElementById('e-alumno').value;
   if(!aid){toast('Seleccioná un alumno','error');return}
-  const {error}=await sb.from('evaluaciones').insert({alumno_id:aid,profesor_id:PROF.id,tipo:document.getElementById('e-tipo').value,objetivos:document.getElementById('e-obj').value,observaciones_posturales:document.getElementById('e-post').value,plan_trabajo:document.getElementById('e-plan').value,notas:document.getElementById('e-notas').value});
+  const {error}=await sb.from('evaluaciones').insert({
+    alumno_id:aid,
+    evaluador_id:PROF.id,
+    fecha:document.getElementById('e-fecha').value,
+    tipo:document.getElementById('e-tipo').value,
+    objetivos:document.getElementById('e-obj').value||null,
+    observaciones_posturales:document.getElementById('e-post').value||null,
+    observaciones:document.getElementById('e-post').value||null,
+    plan_trabajo:document.getElementById('e-plan').value||null,
+    notas:document.getElementById('e-notas').value||null,
+  });
   if(error){toast('Error: '+error.message,'error');return}
   toast('✓ Evaluación guardada','success');cm('m-eval');
   await loadEvals();if(SCREEN==='evaluaciones')renderEvals();
@@ -453,16 +481,27 @@ function verEval(e){
   document.getElementById('ve-title').textContent=e.perfiles?`${e.perfiles.nombre} ${e.perfiles.apellido}`:'Evaluación';
   document.getElementById('ve-fecha').textContent=new Date(e.created_at).toLocaleDateString('es-BO',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+' · '+(e.tipo||'Evaluación');
   const row=(l,v)=>v?`<div style="margin-bottom:16px"><div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--stone-dark);font-weight:500;margin-bottom:5px">${l}</div><div style="font-size:13px;color:var(--charcoal);line-height:1.6;font-weight:300">${v}</div></div>`:'';
-  document.getElementById('ve-body').innerHTML=row('Objetivos',e.objetivos)+row('Observaciones posturales',e.observaciones_posturales)+row('Plan de trabajo',e.plan_trabajo)+row('Notas',e.notas);
+  document.getElementById('ve-body').innerHTML=
+    row('Objetivos',e.objetivos)+
+    row('Observaciones posturales',e.observaciones_posturales||e.observaciones)+
+    row('Plan de trabajo',e.plan_trabajo)+
+    row('Notas',e.notas)+
+    (e.archivo_url?`<div style="margin-top:8px"><a href="${e.archivo_url}" target="_blank" style="color:var(--gold-muted);font-weight:500;font-size:13px">📎 Ver archivo adjunto</a></div>`:'');
   document.getElementById('m-ver-eval').style.display='flex';
 }
+
 async function verHistorial(aid,nom){
   const ev=EVALS.filter(e=>e.alumno_id===aid);
   document.getElementById('ve-title').textContent=nom;
   document.getElementById('ve-fecha').textContent=`${ev.length} evaluación${ev.length!==1?'es':''}`;
   document.getElementById('ve-body').innerHTML=ev.length?ev.map(e=>{
     const f=new Date(e.created_at).toLocaleDateString('es-BO',{day:'numeric',month:'long',year:'numeric'});
-    return `<div style="border:1px solid var(--stone-light);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:var(--charcoal);font-weight:500">${e.tipo||'Evaluación'}</span><span style="font-size:10px;color:var(--stone)">${f}</span></div>${e.objetivos?`<div style="font-size:12px;color:var(--stone-dark);line-height:1.5;font-weight:300">${e.objetivos.slice(0,120)}${e.objetivos.length>120?'…':''}</div>`:''}<div style="margin-top:8px"><a onclick='verEval(${JSON.stringify(e).replace(/'/g,"\\'")})'  style="font-size:11px;color:var(--gold-muted);cursor:pointer">Ver completa ›</a></div></div>`;
+    return `<div style="border:1px solid var(--stone-light);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:var(--charcoal);font-weight:500">${e.tipo||'Evaluación'}</span><span style="font-size:10px;color:var(--stone)">${f}</span></div>
+      ${e.objetivos?`<div style="font-size:12px;color:var(--stone-dark);line-height:1.5;font-weight:300">${e.objetivos.slice(0,120)}${e.objetivos.length>120?'…':''}</div>`:''}
+      ${e.archivo_url?`<div style="margin-top:6px"><a href="${e.archivo_url}" target="_blank" style="font-size:11px;color:var(--gold-muted)">📎 Archivo adjunto</a></div>`:''}
+      <div style="margin-top:8px"><a onclick='verEval(${JSON.stringify(e).replace(/'/g,"\\'")})'  style="font-size:11px;color:var(--gold-muted);cursor:pointer">Ver completa ›</a></div>
+    </div>`;
   }).join(''):`<div class="empty-state" style="padding:20px">Sin evaluaciones previas.</div>`;
   document.getElementById('m-ver-eval').style.display='flex';
 }
