@@ -887,10 +887,12 @@ async function guardarEval(){
 
     const payload={
       alumno_id:aid,
-      profesor_id:ADMIN.id,
-      tipo:document.getElementById('eval-tipo').value,
+      evaluador_id:ADMIN.id,
+      fecha:document.getElementById('eval-fecha').value,
+      tipo:document.getElementById('eval-tipo').value||null,
       objetivos:document.getElementById('eval-obj').value||null,
       observaciones_posturales:document.getElementById('eval-post').value||null,
+      observaciones:document.getElementById('eval-post').value||null,
       plan_trabajo:document.getElementById('eval-plan').value||null,
       notas:document.getElementById('eval-notas').value||null,
     };
