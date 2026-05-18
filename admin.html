@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- SheetJS para export Excel -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
   <style>
     :root {
       --cream:         #FAF7F2;
@@ -73,6 +75,8 @@
     .btn-ghost:hover{border-color:var(--stone);background:var(--stone-light);color:var(--charcoal)}
     .btn-danger{background:#fdf0ef;color:#a83232;border:1.5px solid #e8b8b8}
     .btn-danger:hover{background:#a83232;color:#fff}
+    .btn-excel{background:var(--sage-pale);color:var(--sage);border:1.5px solid var(--sage-light);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:8px 16px;border-radius:99px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+    .btn-excel:hover{background:var(--sage);color:#fff}
     .btn-sm-act{padding:5px 12px;border-radius:99px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;border:none;transition:all .2s}
     .btn-approve{background:#e8f5ee;color:#2d7a4f;border:1px solid #b8deca}
     .btn-approve:hover{background:#2d7a4f;color:#fff}
@@ -126,9 +130,9 @@
     .search-input{flex:1;background:var(--warm-white);border:1.5px solid var(--stone-light);border-radius:99px;padding:8px 16px;color:var(--charcoal);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
     .search-input:focus{border-color:var(--stone)}
 
-    /* CLASE CARD (dashboard) */
+    /* CLASE CARD */
     .clase-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;padding:16px}
-    .clase-card{background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm);padding:14px;cursor:default;transition:border-color .15s}
+    .clase-card{background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm);padding:14px;transition:border-color .15s}
     .clase-card:hover{border-color:var(--stone)}
     .clase-hora{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--stone-dark);margin-bottom:3px}
     .clase-nombre{font-size:13px;font-weight:500;color:var(--charcoal)}
@@ -145,6 +149,22 @@
     .plan-precio{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold-muted);margin-bottom:12px}
     .plan-dashed{border:1.5px dashed var(--stone-light);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:160px;cursor:pointer;transition:border-color .2s;border-radius:var(--radius)}
     .plan-dashed:hover{border-color:var(--stone)}
+
+    /* EVALUACION ADJUNTO */
+    .eval-item{background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px}
+    .eval-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .eval-alumno{font-size:13px;color:var(--charcoal);font-weight:500}
+    .eval-fecha{font-size:11px;color:var(--stone-dark);font-weight:300}
+    .eval-tipo{font-size:11px;color:var(--stone);margin-top:2px}
+    .eval-archivo{display:flex;align-items:center;gap:8px;margin-top:10px;padding:8px 10px;background:var(--warm-white);border:1px solid var(--stone-light);border-radius:var(--radius-sm);font-size:12px;color:var(--charcoal-mid)}
+    .eval-archivo a{color:var(--gold-muted);text-decoration:none;font-weight:500;font-size:11px}
+    .eval-archivo a:hover{text-decoration:underline}
+
+    /* UPLOAD ZONE */
+    .upload-zone{border:2px dashed var(--stone-light);border-radius:var(--radius-sm);padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--cream)}
+    .upload-zone:hover,.upload-zone.dragover{border-color:var(--stone);background:var(--stone-light)}
+    .upload-zone p{font-size:12px;color:var(--stone-dark);margin-top:6px;font-weight:300}
+    .upload-zone .icon{font-size:24px;margin-bottom:4px;opacity:.5}
 
     /* MODAL */
     .modal-overlay{position:fixed;inset:0;background:rgba(28,28,26,.5);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
@@ -172,6 +192,11 @@
     /* QUICK ACTIONS */
     .quick-action{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s;font-size:13px;color:var(--charcoal-mid);border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
     .quick-action:hover{background:var(--stone-light);color:var(--charcoal)}
+
+    /* PROGRESS BAR UPLOAD */
+    .upload-progress{height:3px;background:var(--stone-light);border-radius:99px;overflow:hidden;margin-top:8px;display:none}
+    .upload-progress.visible{display:block}
+    .upload-progress-fill{height:100%;background:var(--sage);border-radius:99px;transition:width .3s}
 
     /* TOAST */
     .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px}
@@ -206,7 +231,12 @@
     <div class="nav-section" style="margin-top:14px">
       <div class="nav-label">Operaciones</div>
       <button class="nav-item" onclick="sw('clases')"><span class="nav-dot"></span>Clases</button>
+      <button class="nav-item" onclick="sw('evaluaciones')"><span class="nav-dot"></span>Evaluaciones</button>
       <button class="nav-item" onclick="sw('planes')"><span class="nav-dot"></span>Planes</button>
+    </div>
+    <div class="nav-section" style="margin-top:14px">
+      <div class="nav-label">Reportes</div>
+      <button class="nav-item" onclick="sw('exportar')"><span class="nav-dot"></span>Exportar Excel</button>
     </div>
     <div class="nav-spacer"></div>
     <div class="sidebar-user">
@@ -264,7 +294,7 @@
         <div class="form-group"><label class="form-label">Fecha inicio</label><input type="date" class="form-input" id="mem-ini"></div>
         <div class="form-group"><label class="form-label">Fecha fin</label><input type="date" class="form-input" id="mem-fin"></div>
       </div>
-      <div class="form-group"><label class="form-label">Créditos</label><input type="number" class="form-input" id="mem-cred" placeholder="Se llena con el plan"><div class="form-help">Podés ajustar manualmente si es necesario</div></div>
+      <div class="form-group"><label class="form-label">Créditos</label><input type="number" class="form-input" id="mem-cred"><div class="form-help">Se llena automáticamente con el plan seleccionado</div></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="cm('m-mem')">Cancelar</button><button class="btn btn-primary" onclick="guardarMem()">Asignar Membresía</button></div>
   </div>
@@ -301,9 +331,39 @@
         <div class="form-group"><label class="form-label">Nivel</label><select class="form-select" id="cl-niv"><option>Principiante</option><option>Intermedio</option><option>Avanzado</option><option>Todos los niveles</option></select></div>
       </div>
       <div class="form-group"><label class="form-label">Profesor</label><select class="form-select" id="cl-prof"><option value="">Sin asignar</option></select></div>
-      <div class="form-group"><label class="form-label">Descripción / Notas</label><textarea class="form-textarea" id="cl-desc" placeholder="Notas para el profesor, equipo necesario…"></textarea></div>
+      <div class="form-group"><label class="form-label">Descripción / Notas</label><textarea class="form-textarea" id="cl-desc"></textarea></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="cm('m-clase')">Cancelar</button><button class="btn btn-primary" onclick="guardarClase()">Guardar Clase</button></div>
+  </div>
+</div>
+
+<!-- MODAL EVALUACION CON ADJUNTO -->
+<div class="modal-overlay" id="m-eval" style="display:none">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="m-eval-title">Nueva Evaluación</div><button class="modal-close" onclick="cm('m-eval')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="eval-id">
+      <div class="form-group"><label class="form-label">Alumno/a</label><select class="form-select" id="eval-alumno"><option value="">Seleccionar…</option></select></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="eval-fecha"></div>
+        <div class="form-group"><label class="form-label">Tipo</label><select class="form-select" id="eval-tipo"><option value="inicial">Evaluación Inicial</option><option value="seguimiento">Seguimiento</option><option value="postural">Postural</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Objetivos</label><input type="text" class="form-input" id="eval-obj" placeholder="Mejorar postura, fortalecer core…"></div>
+      <div class="form-group"><label class="form-label">Observaciones posturales</label><textarea class="form-textarea" id="eval-post" placeholder="Postura, alineación, compensaciones…"></textarea></div>
+      <div class="form-group"><label class="form-label">Plan de trabajo</label><textarea class="form-textarea" id="eval-plan" placeholder="Ejercicios, progresión, restricciones…"></textarea></div>
+      <div class="form-group"><label class="form-label">Notas adicionales</label><textarea class="form-textarea" id="eval-notas" style="min-height:60px"></textarea></div>
+      <!-- ADJUNTO -->
+      <div class="form-group">
+        <label class="form-label">Archivo adjunto <span style="color:var(--stone);font-size:10px;letter-spacing:0">(PDF, imagen — máx. 5MB)</span></label>
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('eval-file').click()" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="this.classList.remove('dragover')">
+          <div class="icon">📎</div>
+          <p id="upload-label">Hacé clic o arrastrá un archivo aquí</p>
+        </div>
+        <input type="file" id="eval-file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="onFileSelect(this)">
+        <div class="upload-progress" id="upload-progress"><div class="upload-progress-fill" id="upload-progress-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="cm('m-eval')">Cancelar</button><button class="btn btn-primary" id="btn-guardar-eval" onclick="guardarEval()">Guardar Evaluación</button></div>
   </div>
 </div>
 
@@ -312,18 +372,19 @@ const SB_URL='https://yeaejlbahtkrrsttbprb.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InllYWVqbGJhaHRrcnJzdHRicHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Nzk3NTIsImV4cCI6MjA5NDU1NTc1Mn0.gpzc8sNIifOtfbA02nITKF9od8B9thSXlOyKrlA3ic0';
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
-let ADMIN=null,USUARIOS=[],MEMS=[],CLASES=[],LICS=[],PLANES=[],CURRENT='dashboard',Q='';
+let ADMIN=null,USUARIOS=[],MEMS=[],CLASES=[],LICS=[],PLANES=[],EVALS=[],CURRENT='dashboard',Q='';
 window._licTab='pendiente';
+let evalFile=null;
 
 window.addEventListener('DOMContentLoaded',async()=>{
   const {data:{session}}=await sb.auth.getSession();
   if(!session){location.href='/index.html';return}
   const {data:p}=await sb.from('perfiles').select('*').eq('id',session.user.id).single();
-  if(!p||p.rol!=='admin'){toast('Acceso denegado. Solo administradores.','error');setTimeout(()=>location.href='/index.html',2000);return}
+  if(!p||p.rol!=='admin'){toast('Acceso denegado.','error');setTimeout(()=>location.href='/index.html',2000);return}
   ADMIN=p;
   document.getElementById('sb-avatar').textContent=(p.nombre[0]+p.apellido[0]).toUpperCase();
   document.getElementById('sb-name').textContent=p.nombre;
-  await Promise.all([loadUsuarios(),loadMems(),loadClases(),loadLics(),loadPlanes()]);
+  await Promise.all([loadUsuarios(),loadMems(),loadClases(),loadLics(),loadPlanes(),loadEvals()]);
   sw('dashboard');
 });
 
@@ -337,18 +398,23 @@ async function loadLics(){
   if(pend>0){b.textContent=pend;b.style.display=''}else b.style.display='none';
 }
 async function loadPlanes(){const {data}=await sb.from('planes').select('*').eq('activo',true).order('precio_bs');PLANES=data||[]}
+async function loadEvals(){
+  const {data}=await sb.from('evaluaciones').select('*,perfiles!evaluaciones_alumno_id_fkey(nombre,apellido)').order('created_at',{ascending:false});
+  EVALS=data||[];
+}
 
 function sw(s){
   CURRENT=s;Q='';
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
-  const idx={dashboard:0,usuarios:1,membresias:2,licencias:3,clases:4,planes:5};
+  const idx={dashboard:0,usuarios:1,membresias:2,licencias:3,clases:4,evaluaciones:5,planes:6,exportar:7};
   document.querySelectorAll('.nav-item')[idx[s]]?.classList.add('active');
-  document.getElementById('tp-title').textContent={dashboard:'Dashboard',usuarios:'Usuarios',membresias:'Membresías',licencias:'Licencias',clases:'Clases',planes:'Planes & Precios'}[s]||'';
+  document.getElementById('tp-title').textContent={dashboard:'Dashboard',usuarios:'Usuarios',membresias:'Membresías',licencias:'Licencias',clases:'Clases',evaluaciones:'Evaluaciones',planes:'Planes & Precios',exportar:'Exportar Excel'}[s]||'';
   document.getElementById('tp-actions').innerHTML={
     usuarios:`<button class="btn btn-primary" onclick="openNewUsuario()">+ Nuevo usuario</button>`,
     clases:`<button class="btn btn-primary" onclick="openNewClase()">+ Nueva clase</button>`,
+    evaluaciones:`<button class="btn btn-primary" onclick="openNewEval()">+ Nueva evaluación</button>`,
   }[s]||'';
-  ({dashboard:renderDashboard,usuarios:renderUsuarios,membresias:renderMems,licencias:renderLics,clases:renderClases,planes:renderPlanes}[s])?.();
+  ({dashboard:renderDashboard,usuarios:renderUsuarios,membresias:renderMems,licencias:renderLics,clases:renderClases,evaluaciones:renderEvals,planes:renderPlanes,exportar:renderExportar}[s])?.();
 }
 
 /* ── DASHBOARD ── */
@@ -393,7 +459,7 @@ function renderDashboard(){
         <button class="quick-action" onclick="openNewUsuario()">👤 Nuevo usuario</button>
         <button class="quick-action" onclick="openNewClase()">📅 Nueva clase</button>
         <button class="quick-action" onclick="sw('membresias')">💳 Gestionar membresías</button>
-        <button class="quick-action" onclick="sw('licencias')">📋 Revisar licencias</button>
+        <button class="quick-action" onclick="sw('exportar')">📊 Exportar Excel</button>
       </div></div>
     </div>
   </div>`);
@@ -445,8 +511,7 @@ function renderLics(){
   set(`<div class="tabs">${tabsHtml}</div><div class="card"><div class="card-header"><div class="card-title">Licencias — ${t.charAt(0).toUpperCase()+t.slice(1)}s</div><div class="card-actions"><span class="pill">${fil.length}</span></div></div><div class="table-wrap"><table><thead><tr><th>Alumno</th><th>Clase</th><th>Motivo</th><th>Estado</th><th>Solicitada</th><th>Acciones</th></tr></thead><tbody>${rows||`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--stone)">Sin licencias</td></tr>`}</tbody></table></div></div>`);
 }
 async function resolverLic(id,estado){
-  const {error}=await sb.from('licencias').update({estado}).eq('id',id);
-  if(error){toast('Error: '+error.message,'error');return}
+  await sb.from('licencias').update({estado}).eq('id',id);
   toast(estado==='aprobada'?'✓ Licencia aprobada':'Licencia rechazada',estado==='aprobada'?'success':'info');
   await loadLics();renderLics();
 }
@@ -477,6 +542,175 @@ async function cancelarClase(id){
   if(!confirm('¿Cancelar esta clase?'))return;
   await sb.from('clases').update({estado:'cancelada'}).eq('id',id);
   toast('Clase cancelada','info');await loadClases();renderClases();
+}
+
+/* ── EVALUACIONES ── */
+function renderEvals(){
+  const q=Q.toLowerCase();
+  const fil=EVALS.filter(e=>{
+    const nom=e.perfiles?`${e.perfiles.nombre} ${e.perfiles.apellido}`:'';
+    return(nom+(e.tipo||'')).toLowerCase().includes(q);
+  });
+  const items=fil.map(e=>{
+    const nom=e.perfiles?`${e.perfiles.nombre} ${e.perfiles.apellido}`:'—';
+    const ini=e.perfiles?(e.perfiles.nombre[0]+e.perfiles.apellido[0]).toUpperCase():'?';
+    const fecha=new Date(e.created_at).toLocaleDateString('es-BO',{day:'numeric',month:'long',year:'numeric'});
+    const tieneArchivo=!!e.archivo_url;
+    return `<div class="eval-item">
+      <div class="eval-header">
+        <div><div class="eval-alumno"><span class="avatar-xs">${ini}</span>${nom}</div><div class="eval-tipo" style="margin-top:4px;margin-left:34px">${e.tipo||'Evaluación'}</div></div>
+        <div style="text-align:right"><div class="eval-fecha">${fecha}</div>
+        <a onclick="openEditEval('${e.id}')" style="font-size:11px;color:var(--gold-muted);cursor:pointer;margin-top:4px;display:block">Editar</a></div>
+      </div>
+      ${e.objetivos?`<div style="font-size:12px;color:var(--stone-dark);font-weight:300;margin-top:8px;line-height:1.5">${e.objetivos.slice(0,100)}${e.objetivos.length>100?'…':''}</div>`:''}
+      ${tieneArchivo?`<div class="eval-archivo">📎 <a href="${e.archivo_url}" target="_blank">Ver archivo adjunto</a></div>`:`<div style="font-size:11px;color:var(--stone);margin-top:8px">Sin archivo adjunto</div>`}
+    </div>`;
+  }).join('');
+  set(`<div class="search-bar"><input class="search-input" placeholder="Buscar por alumno o tipo…" oninput="Q=this.value;renderEvals()" value="${q}"><button class="btn btn-primary" onclick="openNewEval()">+ Nueva evaluación</button></div>
+  ${fil.length?`<div class="card"><div class="card-header"><div class="card-title">Evaluaciones</div><div class="card-actions"><span class="pill">${fil.length}</span></div></div><div style="padding:14px">${items}</div></div>`:`<div class="card"><div class="empty-state"><div class="empty-icon">📊</div>Sin evaluaciones registradas</div></div>`}`);
+}
+
+/* ── EXPORTAR EXCEL ── */
+function renderExportar(){
+  set(`
+    <div style="max-width:640px">
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header"><div class="card-title">Exportar datos a Excel</div></div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+          <div style="font-size:13px;color:var(--stone-dark);font-weight:300;line-height:1.6;margin-bottom:8px">
+            Descargá los datos del estudio en formato Excel (.xlsx) para análisis, reportes o respaldo.
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm)">
+            <div>
+              <div style="font-size:13px;color:var(--charcoal);font-weight:500">👥 Alumnos</div>
+              <div style="font-size:11px;color:var(--stone-dark);margin-top:2px">Nombre, apellido, teléfono, rol, estado · ${USUARIOS.filter(u=>u.rol==='alumno').length} registros</div>
+            </div>
+            <button class="btn-excel" onclick="exportarAlumnos()">⬇ Descargar</button>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm)">
+            <div>
+              <div style="font-size:13px;color:var(--charcoal);font-weight:500">💳 Membresías</div>
+              <div style="font-size:11px;color:var(--stone-dark);margin-top:2px">Alumno, plan, créditos, estado, vencimiento · ${MEMS.length} registros</div>
+            </div>
+            <button class="btn-excel" onclick="exportarMembresias()">⬇ Descargar</button>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm)">
+            <div>
+              <div style="font-size:13px;color:var(--charcoal);font-weight:500">📅 Clases</div>
+              <div style="font-size:11px;color:var(--stone-dark);margin-top:2px">Nombre, fecha, modalidad, profesor, capacidad · ${CLASES.length} registros</div>
+            </div>
+            <button class="btn-excel" onclick="exportarClases()">⬇ Descargar</button>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm)">
+            <div>
+              <div style="font-size:13px;color:var(--charcoal);font-weight:500">📋 Licencias</div>
+              <div style="font-size:11px;color:var(--stone-dark);margin-top:2px">Alumno, clase, motivo, estado, fecha · ${LICS.length} registros</div>
+            </div>
+            <button class="btn-excel" onclick="exportarLicencias()">⬇ Descargar</button>
+          </div>
+
+          <div style="border-top:1px solid var(--stone-light);padding-top:16px;margin-top:4px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--sage-pale);border:1px solid var(--sage-light);border-radius:var(--radius-sm)">
+              <div>
+                <div style="font-size:13px;color:var(--charcoal);font-weight:500">📊 Reporte completo</div>
+                <div style="font-size:11px;color:var(--stone-dark);margin-top:2px">Todas las hojas en un solo archivo Excel</div>
+              </div>
+              <button class="btn-excel" style="background:var(--sage);color:#fff;border-color:var(--sage)" onclick="exportarCompleto()">⬇ Todo en uno</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+/* ── FUNCIONES DE EXPORT ── */
+function exportarAlumnos(){
+  const data=USUARIOS.map(u=>({
+    'Nombre':u.nombre,
+    'Apellido':u.apellido,
+    'Teléfono':u.telefono||'—',
+    'Rol':u.rol,
+    'Estado':u.activo?'Activo':'Inactivo',
+    'Fecha registro':new Date(u.created_at).toLocaleDateString('es-BO'),
+  }));
+  descargarExcel([{nombre:'Alumnos',data}],'lumina_alumnos');
+  toast('✓ Alumnos exportados','success');
+}
+
+function exportarMembresias(){
+  const data=MEMS.map(m=>({
+    'Alumno':m.perfiles?`${m.perfiles.nombre} ${m.perfiles.apellido}`:'—',
+    'Plan':m.planes?.nombre||'—',
+    'Precio (Bs)':m.planes?.precio_bs||'—',
+    'Créditos restantes':m.creditos_restantes??'—',
+    'Estado':m.estado,
+    'Fecha inicio':m.fecha_inicio?new Date(m.fecha_inicio).toLocaleDateString('es-BO'):'—',
+    'Fecha fin':m.fecha_fin?new Date(m.fecha_fin).toLocaleDateString('es-BO'):'—',
+  }));
+  descargarExcel([{nombre:'Membresías',data}],'lumina_membresias');
+  toast('✓ Membresías exportadas','success');
+}
+
+function exportarClases(){
+  const data=CLASES.map(c=>({
+    'Nombre':c.nombre,
+    'Fecha':c.fecha_hora?new Date(c.fecha_hora).toLocaleDateString('es-BO'):'—',
+    'Hora':c.fecha_hora?new Date(c.fecha_hora).toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'}):'—',
+    'Modalidad':c.modalidad||'—',
+    'Nivel':c.nivel||'—',
+    'Profesor':c.perfiles?`${c.perfiles.nombre} ${c.perfiles.apellido}`:'Sin asignar',
+    'Capacidad':c.capacidad||'—',
+    'Inscritos':c.alumnos_inscritos||0,
+    'Estado':c.estado||'—',
+  }));
+  descargarExcel([{nombre:'Clases',data}],'lumina_clases');
+  toast('✓ Clases exportadas','success');
+}
+
+function exportarLicencias(){
+  const data=LICS.map(l=>({
+    'Alumno':l.perfiles?`${l.perfiles.nombre} ${l.perfiles.apellido}`:'—',
+    'Fecha clase':l.fecha_clase?new Date(l.fecha_clase).toLocaleDateString('es-BO'):'—',
+    'Motivo':l.motivo||'—',
+    'Estado':l.estado,
+    'Solicitada':new Date(l.created_at).toLocaleDateString('es-BO'),
+  }));
+  descargarExcel([{nombre:'Licencias',data}],'lumina_licencias');
+  toast('✓ Licencias exportadas','success');
+}
+
+function exportarCompleto(){
+  const hojas=[
+    {nombre:'Alumnos',data:USUARIOS.map(u=>({'Nombre':u.nombre,'Apellido':u.apellido,'Teléfono':u.telefono||'—','Rol':u.rol,'Estado':u.activo?'Activo':'Inactivo','Fecha registro':new Date(u.created_at).toLocaleDateString('es-BO')}))},
+    {nombre:'Membresías',data:MEMS.map(m=>({'Alumno':m.perfiles?`${m.perfiles.nombre} ${m.perfiles.apellido}`:'—','Plan':m.planes?.nombre||'—','Créditos restantes':m.creditos_restantes??'—','Estado':m.estado,'Vence':m.fecha_fin?new Date(m.fecha_fin).toLocaleDateString('es-BO'):'—'}))},
+    {nombre:'Clases',data:CLASES.map(c=>({'Nombre':c.nombre,'Fecha':c.fecha_hora?new Date(c.fecha_hora).toLocaleDateString('es-BO'):'—','Hora':c.fecha_hora?new Date(c.fecha_hora).toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'}):'—','Modalidad':c.modalidad||'—','Profesor':c.perfiles?`${c.perfiles.nombre} ${c.perfiles.apellido}`:'Sin asignar','Inscritos':c.alumnos_inscritos||0,'Estado':c.estado||'—'}))},
+    {nombre:'Licencias',data:LICS.map(l=>({'Alumno':l.perfiles?`${l.perfiles.nombre} ${l.perfiles.apellido}`:'—','Fecha clase':l.fecha_clase?new Date(l.fecha_clase).toLocaleDateString('es-BO'):'—','Motivo':l.motivo||'—','Estado':l.estado,'Solicitada':new Date(l.created_at).toLocaleDateString('es-BO')}))},
+  ];
+  descargarExcel(hojas,'lumina_reporte_completo');
+  toast('✓ Reporte completo exportado','success');
+}
+
+function descargarExcel(hojas, nombreArchivo){
+  const wb = XLSX.utils.book_new();
+  hojas.forEach(h=>{
+    if(!h.data.length){
+      const ws=XLSX.utils.aoa_to_sheet([['Sin datos']]);
+      XLSX.utils.book_append_sheet(wb,ws,h.nombre);
+      return;
+    }
+    const ws=XLSX.utils.json_to_sheet(h.data);
+    // Ancho de columnas automático
+    const cols=Object.keys(h.data[0]).map(k=>({wch:Math.max(k.length,12)}));
+    ws['!cols']=cols;
+    XLSX.utils.book_append_sheet(wb,ws,h.nombre);
+  });
+  const fecha=new Date().toISOString().split('T')[0];
+  XLSX.writeFile(wb,`${nombreArchivo}_${fecha}.xlsx`);
 }
 
 /* ── PLANES ── */
@@ -512,7 +746,7 @@ async function guardarUsuario(){
   const id=document.getElementById('u-id').value;
   const payload={nombre:document.getElementById('u-nom').value.trim(),apellido:document.getElementById('u-ape').value.trim(),telefono:document.getElementById('u-tel').value.trim()||null,rol:document.getElementById('u-rol').value,observaciones_medicas:document.getElementById('u-obs').value.trim()||null};
   if(!payload.nombre||!payload.apellido){toast('Nombre y apellido son obligatorios','error');return}
-  if(!id){toast('Para crear usuarios nuevos, registralos desde el login y luego editá el perfil aquí.','info');cm('m-usuario');return}
+  if(!id){toast('Para crear usuarios nuevos, registralos desde registro.html y luego editá el perfil aquí.','info');cm('m-usuario');return}
   const {error}=await sb.from('perfiles').update(payload).eq('id',id);
   if(error){toast('Error: '+error.message,'error');return}
   toast('✓ Usuario guardado','success');cm('m-usuario');await loadUsuarios();renderUsuarios();
@@ -554,8 +788,7 @@ async function guardarCred(){
   const id=document.getElementById('cred-mid').value;
   const nv=parseInt(document.getElementById('cred-new').value);
   if(isNaN(nv)||nv<0){toast('Ingresá un valor válido','error');return}
-  const {error}=await sb.from('membresias').update({creditos_restantes:nv}).eq('id',id);
-  if(error){toast('Error: '+error.message,'error');return}
+  await sb.from('membresias').update({creditos_restantes:nv}).eq('id',id);
   toast('✓ Créditos actualizados','success');cm('m-cred');await loadMems();if(CURRENT==='membresias')renderMems();
 }
 async function toggleEstadoMem(id,est){
@@ -596,6 +829,126 @@ async function guardarClase(){
   const {error}=id?await sb.from('clases').update(p).eq('id',id):await sb.from('clases').insert(p);
   if(error){toast('Error: '+error.message,'error');return}
   toast('✓ Clase guardada','success');cm('m-clase');await loadClases();renderClases();
+}
+
+/* ── MODALS: EVALUACION CON ADJUNTO ── */
+function openNewEval(){
+  document.getElementById('m-eval-title').textContent='Nueva Evaluación';
+  document.getElementById('eval-id').value='';
+  const sel=document.getElementById('eval-alumno');
+  sel.innerHTML='<option value="">Seleccionar alumno…</option>'+USUARIOS.filter(u=>u.rol==='alumno').map(u=>`<option value="${u.id}">${u.nombre} ${u.apellido}</option>`).join('');
+  document.getElementById('eval-fecha').value=new Date().toISOString().split('T')[0];
+  ['eval-obj','eval-post','eval-plan','eval-notas'].forEach(i=>document.getElementById(i).value='');
+  resetUpload();
+  document.getElementById('m-eval').style.display='flex';
+}
+
+function openEditEval(id){
+  const e=EVALS.find(x=>x.id===id);if(!e)return;
+  document.getElementById('m-eval-title').textContent='Editar Evaluación';
+  document.getElementById('eval-id').value=e.id;
+  const sel=document.getElementById('eval-alumno');
+  sel.innerHTML='<option value="">Seleccionar alumno…</option>'+USUARIOS.filter(u=>u.rol==='alumno').map(u=>`<option value="${u.id}" ${u.id===e.alumno_id?'selected':''}>${u.nombre} ${u.apellido}</option>`).join('');
+  document.getElementById('eval-fecha').value=e.fecha||new Date().toISOString().split('T')[0];
+  document.getElementById('eval-tipo').value=e.tipo||'inicial';
+  document.getElementById('eval-obj').value=e.objetivos||'';
+  document.getElementById('eval-post').value=e.observaciones_posturales||'';
+  document.getElementById('eval-plan').value=e.plan_trabajo||'';
+  document.getElementById('eval-notas').value=e.notas||'';
+  resetUpload();
+  if(e.archivo_url){
+    document.getElementById('upload-label').textContent='✓ Archivo existente. Subí uno nuevo para reemplazarlo.';
+  }
+  document.getElementById('m-eval').style.display='flex';
+}
+
+async function guardarEval(){
+  const aid=document.getElementById('eval-alumno').value;
+  if(!aid){toast('Seleccioná un alumno','error');return}
+
+  const btn=document.getElementById('btn-guardar-eval');
+  btn.disabled=true;btn.textContent='Guardando…';
+
+  try{
+    let archivo_url=null;
+
+    // Subir archivo si hay uno seleccionado
+    if(evalFile){
+      const ext=evalFile.name.split('.').pop();
+      const path=`evaluaciones/${aid}/${Date.now()}.${ext}`;
+      showProgress(30);
+      const {data:up,error:upErr}=await sb.storage.from('evaluaciones').upload(path,evalFile,{upsert:true});
+      if(upErr){toast('Error al subir archivo: '+upErr.message,'error');return}
+      showProgress(80);
+      const {data:url}=sb.storage.from('evaluaciones').getPublicUrl(path);
+      archivo_url=url.publicUrl;
+      showProgress(100);
+    }
+
+    const payload={
+      alumno_id:aid,
+      profesor_id:ADMIN.id,
+      tipo:document.getElementById('eval-tipo').value,
+      objetivos:document.getElementById('eval-obj').value||null,
+      observaciones_posturales:document.getElementById('eval-post').value||null,
+      plan_trabajo:document.getElementById('eval-plan').value||null,
+      notas:document.getElementById('eval-notas').value||null,
+    };
+    if(archivo_url) payload.archivo_url=archivo_url;
+
+    const id=document.getElementById('eval-id').value;
+    const {error}=id
+      ?await sb.from('evaluaciones').update(payload).eq('id',id)
+      :await sb.from('evaluaciones').insert(payload);
+
+    if(error){toast('Error: '+error.message,'error');return}
+
+    toast('✓ Evaluación guardada','success');
+    cm('m-eval');
+    await loadEvals();
+    if(CURRENT==='evaluaciones')renderEvals();
+
+  }finally{
+    btn.disabled=false;btn.textContent='Guardar Evaluación';
+    hideProgress();
+  }
+}
+
+/* ── UPLOAD HELPERS ── */
+function onFileSelect(input){
+  if(input.files[0]) setFile(input.files[0]);
+}
+function onDragOver(e){
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.add('dragover');
+}
+function onDrop(e){
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('dragover');
+  const f=e.dataTransfer.files[0];
+  if(f) setFile(f);
+}
+function setFile(f){
+  if(f.size>5*1024*1024){toast('El archivo supera los 5MB','error');return}
+  evalFile=f;
+  document.getElementById('upload-label').textContent=`📎 ${f.name} (${(f.size/1024).toFixed(0)} KB)`;
+  document.getElementById('upload-zone').style.borderColor='var(--sage)';
+}
+function resetUpload(){
+  evalFile=null;
+  document.getElementById('eval-file').value='';
+  document.getElementById('upload-label').textContent='Hacé clic o arrastrá un archivo aquí';
+  document.getElementById('upload-zone').style.borderColor='';
+  hideProgress();
+}
+function showProgress(pct){
+  const el=document.getElementById('upload-progress');
+  el.classList.add('visible');
+  document.getElementById('upload-progress-fill').style.width=pct+'%';
+}
+function hideProgress(){
+  document.getElementById('upload-progress').classList.remove('visible');
+  document.getElementById('upload-progress-fill').style.width='0%';
 }
 
 /* ── HELPERS ── */
