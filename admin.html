@@ -7,35 +7,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- SheetJS para export Excel -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
   <style>
     :root {
-      --cream:         #FAF7F2;
-      --warm-white:    #FDFCFA;
-      --stone-light:   #EDE8DE;
-      --stone:         #C4B89A;
-      --stone-dark:    #8C7A5E;
-      --charcoal:      #1C1C1A;
-      --charcoal-soft: #2E2E2B;
-      --charcoal-mid:  #4A4A45;
-      --gold:          #C9A96E;
-      --gold-muted:    #A08545;
-      --gold-light:    #E8D5B0;
-      --sage:          #7A8C74;
-      --sage-light:    #B8C4B2;
-      --sage-pale:     #E8EDE6;
-      --sidebar-bg:    #1a2e1f;
-      --radius:        12px;
-      --radius-sm:     8px;
-      --shadow-card:   0 4px 40px rgba(28,28,26,0.08);
+      --cream:#FAF7F2;--warm-white:#FDFCFA;--stone-light:#EDE8DE;--stone:#C4B89A;
+      --stone-dark:#8C7A5E;--charcoal:#1C1C1A;--charcoal-soft:#2E2E2B;--charcoal-mid:#4A4A45;
+      --gold:#C9A96E;--gold-muted:#A08545;--gold-light:#E8D5B0;
+      --sage:#7A8C74;--sage-light:#B8C4B2;--sage-pale:#E8EDE6;
+      --sidebar-bg:#1a2e1f;--radius:12px;--radius-sm:8px;--shadow-card:0 4px 40px rgba(28,28,26,0.08);
     }
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%;font-family:'DM Sans',system-ui,sans-serif;background:var(--cream);color:var(--charcoal);font-size:14px;-webkit-font-smoothing:antialiased}
     ::-webkit-scrollbar{width:4px;height:4px}
-    ::-webkit-scrollbar-track{background:transparent}
     ::-webkit-scrollbar-thumb{background:var(--stone-light);border-radius:4px}
-
     #app{display:flex;height:100vh;overflow:hidden}
 
     /* SIDEBAR */
@@ -150,21 +134,17 @@
     .plan-dashed{border:1.5px dashed var(--stone-light);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:160px;cursor:pointer;transition:border-color .2s;border-radius:var(--radius)}
     .plan-dashed:hover{border-color:var(--stone)}
 
-    /* EVALUACION ADJUNTO */
+    /* EVAL */
     .eval-item{background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px}
-    .eval-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-    .eval-alumno{font-size:13px;color:var(--charcoal);font-weight:500}
-    .eval-fecha{font-size:11px;color:var(--stone-dark);font-weight:300}
-    .eval-tipo{font-size:11px;color:var(--stone);margin-top:2px}
-    .eval-archivo{display:flex;align-items:center;gap:8px;margin-top:10px;padding:8px 10px;background:var(--warm-white);border:1px solid var(--stone-light);border-radius:var(--radius-sm);font-size:12px;color:var(--charcoal-mid)}
-    .eval-archivo a{color:var(--gold-muted);text-decoration:none;font-weight:500;font-size:11px}
-    .eval-archivo a:hover{text-decoration:underline}
 
-    /* UPLOAD ZONE */
+    /* UPLOAD */
     .upload-zone{border:2px dashed var(--stone-light);border-radius:var(--radius-sm);padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--cream)}
     .upload-zone:hover,.upload-zone.dragover{border-color:var(--stone);background:var(--stone-light)}
     .upload-zone p{font-size:12px;color:var(--stone-dark);margin-top:6px;font-weight:300}
     .upload-zone .icon{font-size:24px;margin-bottom:4px;opacity:.5}
+    .upload-progress{height:3px;background:var(--stone-light);border-radius:99px;overflow:hidden;margin-top:8px;display:none}
+    .upload-progress.visible{display:block}
+    .upload-progress-fill{height:100%;background:var(--sage);border-radius:99px;transition:width .3s}
 
     /* MODAL */
     .modal-overlay{position:fixed;inset:0;background:rgba(28,28,26,.5);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
@@ -192,11 +172,6 @@
     /* QUICK ACTIONS */
     .quick-action{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s;font-size:13px;color:var(--charcoal-mid);border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
     .quick-action:hover{background:var(--stone-light);color:var(--charcoal)}
-
-    /* PROGRESS BAR UPLOAD */
-    .upload-progress{height:3px;background:var(--stone-light);border-radius:99px;overflow:hidden;margin-top:8px;display:none}
-    .upload-progress.visible{display:block}
-    .upload-progress-fill{height:100%;background:var(--sage);border-radius:99px;transition:width .3s}
 
     /* TOAST */
     .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px}
@@ -241,10 +216,7 @@
     <div class="nav-spacer"></div>
     <div class="sidebar-user">
       <div class="avatar-sm" id="sb-avatar">A</div>
-      <div>
-        <div class="user-name" id="sb-name">Admin</div>
-        <div class="user-role">Administrador</div>
-      </div>
+      <div><div class="user-name" id="sb-name">Admin</div><div class="user-role">Administrador</div></div>
       <button class="btn-logout" onclick="logout()" title="Salir">↩</button>
     </div>
   </aside>
@@ -277,7 +249,7 @@
       </div>
       <div class="form-group"><label class="form-label">Teléfono</label><input type="text" class="form-input" id="u-tel" placeholder="+591 7XXXXXXX"></div>
       <div class="form-group"><label class="form-label">Rol</label><select class="form-select" id="u-rol"><option value="alumno">Alumno</option><option value="profesor">Profesor</option><option value="admin">Admin</option></select></div>
-      <div class="form-group"><label class="form-label">Observaciones médicas</label><textarea class="form-textarea" id="u-obs" placeholder="Restricciones, condiciones…"></textarea></div>
+      <div class="form-group"><label class="form-label">Observaciones médicas</label><textarea class="form-textarea" id="u-obs"></textarea></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="cm('m-usuario')">Cancelar</button><button class="btn btn-primary" onclick="guardarUsuario()">Guardar</button></div>
   </div>
@@ -323,21 +295,21 @@
       <input type="hidden" id="cl-id">
       <div class="form-group"><label class="form-label">Nombre de la clase</label><input type="text" class="form-input" id="cl-nom" placeholder="Ej. Reformer Intermedio"></div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Fecha y hora</label><input type="datetime-local" class="form-input" id="cl-fecha"></div>
-        <div class="form-group"><label class="form-label">Capacidad</label><input type="number" class="form-input" id="cl-cap" placeholder="6" min="1"></div>
+        <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="cl-fecha"></div>
+        <div class="form-group"><label class="form-label">Hora inicio</label><input type="time" class="form-input" id="cl-hora"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Modalidad</label><select class="form-select" id="cl-mod"><option>Reformer</option><option>Mat</option><option>Cadillac</option><option>Chair</option><option>Barrel</option><option>Mixto</option></select></div>
-        <div class="form-group"><label class="form-label">Nivel</label><select class="form-select" id="cl-niv"><option>Principiante</option><option>Intermedio</option><option>Avanzado</option><option>Todos los niveles</option></select></div>
+        <div class="form-group"><label class="form-label">Tipo</label><select class="form-select" id="cl-tipo"><option value="reformer">Reformer</option><option value="mat">Mat</option><option value="terapeutico">Terapéutico</option></select></div>
+        <div class="form-group"><label class="form-label">Capacidad máx.</label><input type="number" class="form-input" id="cl-cap" placeholder="6" min="1"></div>
       </div>
-      <div class="form-group"><label class="form-label">Profesor</label><select class="form-select" id="cl-prof"><option value="">Sin asignar</option></select></div>
+      <div class="form-group"><label class="form-label">Instructor</label><select class="form-select" id="cl-instructor"><option value="">Sin asignar</option></select></div>
       <div class="form-group"><label class="form-label">Descripción / Notas</label><textarea class="form-textarea" id="cl-desc"></textarea></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="cm('m-clase')">Cancelar</button><button class="btn btn-primary" onclick="guardarClase()">Guardar Clase</button></div>
   </div>
 </div>
 
-<!-- MODAL EVALUACION CON ADJUNTO -->
+<!-- MODAL EVALUACION -->
 <div class="modal-overlay" id="m-eval" style="display:none">
   <div class="modal">
     <div class="modal-header"><div class="modal-title" id="m-eval-title">Nueva Evaluación</div><button class="modal-close" onclick="cm('m-eval')">×</button></div>
@@ -348,11 +320,10 @@
         <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="eval-fecha"></div>
         <div class="form-group"><label class="form-label">Tipo</label><select class="form-select" id="eval-tipo"><option value="inicial">Evaluación Inicial</option><option value="seguimiento">Seguimiento</option><option value="postural">Postural</option></select></div>
       </div>
-      <div class="form-group"><label class="form-label">Objetivos</label><input type="text" class="form-input" id="eval-obj" placeholder="Mejorar postura, fortalecer core…"></div>
-      <div class="form-group"><label class="form-label">Observaciones posturales</label><textarea class="form-textarea" id="eval-post" placeholder="Postura, alineación, compensaciones…"></textarea></div>
-      <div class="form-group"><label class="form-label">Plan de trabajo</label><textarea class="form-textarea" id="eval-plan" placeholder="Ejercicios, progresión, restricciones…"></textarea></div>
+      <div class="form-group"><label class="form-label">Objetivos</label><input type="text" class="form-input" id="eval-obj"></div>
+      <div class="form-group"><label class="form-label">Observaciones posturales</label><textarea class="form-textarea" id="eval-post"></textarea></div>
+      <div class="form-group"><label class="form-label">Plan de trabajo</label><textarea class="form-textarea" id="eval-plan"></textarea></div>
       <div class="form-group"><label class="form-label">Notas adicionales</label><textarea class="form-textarea" id="eval-notas" style="min-height:60px"></textarea></div>
-      <!-- ADJUNTO -->
       <div class="form-group">
         <label class="form-label">Archivo adjunto <span style="color:var(--stone);font-size:10px;letter-spacing:0">(PDF, imagen — máx. 5MB)</span></label>
         <div class="upload-zone" id="upload-zone" onclick="document.getElementById('eval-file').click()" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="this.classList.remove('dragover')">
@@ -376,6 +347,14 @@ let ADMIN=null,USUARIOS=[],MEMS=[],CLASES=[],LICS=[],PLANES=[],EVALS=[],CURRENT=
 window._licTab='pendiente';
 let evalFile=null;
 
+// Helper: combinar fecha+hora de la tabla clases
+function claseDateTime(c){return c.fecha&&c.hora_inicio?new Date(c.fecha+'T'+c.hora_inicio):null}
+function claseHora(c){return c.hora_inicio?.slice(0,5)||'—'}
+function claseFecha(c){
+  if(!c.fecha)return'—';
+  return new Date(c.fecha+'T12:00:00').toLocaleDateString('es-BO',{weekday:'short',day:'numeric',month:'short'});
+}
+
 window.addEventListener('DOMContentLoaded',async()=>{
   const {data:{session}}=await sb.auth.getSession();
   if(!session){location.href='/index.html';return}
@@ -390,7 +369,11 @@ window.addEventListener('DOMContentLoaded',async()=>{
 
 async function loadUsuarios(){const {data}=await sb.from('perfiles').select('*').order('nombre');USUARIOS=data||[]}
 async function loadMems(){const {data}=await sb.from('membresias').select('*,perfiles!membresias_alumno_id_fkey(nombre,apellido),planes(nombre,creditos,precio_bs)').order('created_at',{ascending:false});MEMS=data||[]}
-async function loadClases(){const {data}=await sb.from('clases').select('*,perfiles!clases_profesor_id_fkey(nombre,apellido)').order('fecha_hora',{ascending:false});CLASES=data||[]}
+async function loadClases(){
+  // Columnas reales: titulo, fecha, hora_inicio, instructor_id, tipo, capacidad_max, estado
+  const {data}=await sb.from('clases').select('*,perfiles!clases_instructor_id_fkey(nombre,apellido)').order('fecha',{ascending:false}).order('hora_inicio',{ascending:false});
+  CLASES=data||[];
+}
 async function loadLics(){
   const {data}=await sb.from('licencias').select('*,perfiles!licencias_alumno_id_fkey(nombre,apellido)').order('created_at',{ascending:false});LICS=data||[];
   const pend=LICS.filter(l=>l.estado==='pendiente').length;
@@ -398,10 +381,7 @@ async function loadLics(){
   if(pend>0){b.textContent=pend;b.style.display=''}else b.style.display='none';
 }
 async function loadPlanes(){const {data}=await sb.from('planes').select('*').eq('activo',true).order('precio_bs');PLANES=data||[]}
-async function loadEvals(){
-  const {data}=await sb.from('evaluaciones').select('*,perfiles!evaluaciones_alumno_id_fkey(nombre,apellido)').order('created_at',{ascending:false});
-  EVALS=data||[];
-}
+async function loadEvals(){const {data}=await sb.from('evaluaciones').select('*,perfiles!evaluaciones_alumno_id_fkey(nombre,apellido)').order('created_at',{ascending:false});EVALS=data||[]}
 
 function sw(s){
   CURRENT=s;Q='';
@@ -423,19 +403,19 @@ function renderDashboard(){
   const profs=USUARIOS.filter(u=>u.rol==='profesor'&&u.activo);
   const memAct=MEMS.filter(m=>m.estado==='activa');
   const hoy=new Date().toISOString().split('T')[0];
-  const clasesHoy=CLASES.filter(c=>c.fecha_hora?.startsWith(hoy));
+  const clasesHoy=CLASES.filter(c=>c.fecha===hoy);
   const licPend=LICS.filter(l=>l.estado==='pendiente');
   const ingresos=memAct.reduce((s,m)=>s+(m.planes?.precio_bs||0),0);
-  const proximas=CLASES.filter(c=>c.fecha_hora>=new Date().toISOString()).slice(0,6);
+  const ahora=new Date();
+  const proximas=CLASES.filter(c=>{const dt=claseDateTime(c);return dt&&dt>=ahora}).slice(0,6);
 
   const claseCards=proximas.map(c=>{
-    const f=new Date(c.fecha_hora);
-    const h=f.toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'});
-    const dia=f.toLocaleDateString('es-BO',{weekday:'short',day:'numeric',month:'short'});
-    const ins=c.alumnos_inscritos||0;const cap=c.capacidad||1;
+    const h=claseHora(c);
+    const dia=claseFecha(c);
+    const ins=0;const cap=c.capacidad_max||1;
     const pct=Math.round(ins/cap*100);
-    const prof=c.perfiles?`${c.perfiles.nombre} ${c.perfiles.apellido}`:'Sin profesor';
-    return `<div class="clase-card"><div class="clase-hora">${h}</div><div class="clase-nombre">${c.nombre}</div><div class="clase-detalle">${dia} · ${c.modalidad||'Reformer'} · ${prof}</div><div class="clase-footer"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div><span style="font-size:10px;color:var(--stone)">${ins}/${cap}</span></div></div>`;
+    const prof=c.perfiles?`${c.perfiles.nombre} ${c.perfiles.apellido}`:'Sin instructor';
+    return `<div class="clase-card"><div class="clase-hora">${h}</div><div class="clase-nombre">${c.titulo}</div><div class="clase-detalle">${dia} · ${c.tipo||'Reformer'} · ${prof}</div><div class="clase-footer"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div><span style="font-size:10px;color:var(--stone)">${ins}/${cap}</span></div></div>`;
   }).join('')||`<div class="empty-state" style="padding:20px">Sin clases próximas</div>`;
 
   const licItems=licPend.slice(0,4).map(l=>{
@@ -475,7 +455,7 @@ function renderUsuarios(){
     const ab=u.activo?'<span class="badge badge-green">Activo</span>':'<span class="badge badge-stone">Inactivo</span>';
     return `<tr><td class="td-name"><span class="avatar-xs">${ini}</span>${u.nombre} ${u.apellido}</td><td>${rb}</td><td style="color:var(--stone-dark)">${u.telefono||'—'}</td><td>${ab}</td><td><a onclick="editUsuario('${u.id}')" style="color:var(--gold-muted);cursor:pointer;font-size:11px;margin-right:8px">Editar</a>${u.rol==='alumno'?`<a onclick="openMemPara('${u.id}','${u.nombre} ${u.apellido}')" style="color:var(--stone-dark);cursor:pointer;font-size:11px">Membresía</a>`:''}</td></tr>`;
   }).join('');
-  set(`<div class="search-bar"><input class="search-input" placeholder="Buscar por nombre, teléfono, rol…" oninput="Q=this.value;renderUsuarios()" value="${q}"><button class="btn btn-primary" onclick="openNewUsuario()">+ Nuevo</button></div>
+  set(`<div class="search-bar"><input class="search-input" placeholder="Buscar…" oninput="Q=this.value;renderUsuarios()" value="${q}"><button class="btn btn-primary" onclick="openNewUsuario()">+ Nuevo</button></div>
   <div class="card"><div class="card-header"><div class="card-title">Usuarios</div><div class="card-actions"><span class="pill">${fil.length} usuario${fil.length!==1?'s':''}</span></div></div><div class="table-wrap"><table><thead><tr><th>Nombre</th><th>Rol</th><th>Teléfono</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${rows||`<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--stone)">Sin resultados</td></tr>`}</tbody></table></div></div>`);
 }
 
@@ -486,11 +466,12 @@ function renderMems(){
   const rows=fil.map(m=>{
     const nom=m.perfiles?`${m.perfiles.nombre} ${m.perfiles.apellido}`:'—';
     const ini=m.perfiles?(m.perfiles.nombre[0]+m.perfiles.apellido[0]).toUpperCase():'?';
+    const cred=(m.creditos_total??0)-(m.creditos_usados??0);
     const eb={activa:'<span class="badge badge-green">Activa</span>',vencida:'<span class="badge badge-red">Vencida</span>',suspendida:'<span class="badge badge-yellow">Suspendida</span>',pendiente:'<span class="badge badge-stone">Pendiente</span>'}[m.estado]||`<span class="badge badge-stone">${m.estado}</span>`;
     const fin=m.fecha_fin?new Date(m.fecha_fin).toLocaleDateString('es-BO'):'—';
-    return `<tr><td class="td-name"><span class="avatar-xs">${ini}</span>${nom}</td><td>${m.planes?.nombre||'—'}</td><td style="font-variant-numeric:tabular-nums;color:var(--gold-muted);font-weight:500">${(m.creditos_total??0)-(m.creditos_usados??0)}</td><td>${eb}</td><td style="color:var(--stone-dark)">${fin}</td><td><a onclick="openCred('${m.id}','${nom}',${m.creditos_total||0})" style="color:var(--gold-muted);cursor:pointer;font-size:11px;margin-right:8px">Créditos</a><a onclick="toggleEstadoMem('${m.id}','${m.estado}')" style="color:var(--stone-dark);cursor:pointer;font-size:11px">Estado</a></td></tr>`;
+    return `<tr><td class="td-name"><span class="avatar-xs">${ini}</span>${nom}</td><td>${m.planes?.nombre||'—'}</td><td style="font-variant-numeric:tabular-nums;color:var(--gold-muted);font-weight:500">${cred}</td><td>${eb}</td><td style="color:var(--stone-dark)">${fin}</td><td><a onclick="openCred('${m.id}','${nom}',${m.creditos_total||0})" style="color:var(--gold-muted);cursor:pointer;font-size:11px;margin-right:8px">Créditos</a><a onclick="toggleEstadoMem('${m.id}','${m.estado}')" style="color:var(--stone-dark);cursor:pointer;font-size:11px">Estado</a></td></tr>`;
   }).join('');
-  set(`<div class="search-bar"><input class="search-input" placeholder="Buscar por alumno o plan…" oninput="Q=this.value;renderMems()" value="${q}"></div>
+  set(`<div class="search-bar"><input class="search-input" placeholder="Buscar…" oninput="Q=this.value;renderMems()" value="${q}"></div>
   <div class="card"><div class="card-header"><div class="card-title">Membresías</div><div class="card-actions"><span class="pill">${fil.length}</span></div></div><div class="table-wrap"><table><thead><tr><th>Alumno</th><th>Plan</th><th>Créditos</th><th>Estado</th><th>Vence</th><th>Acciones</th></tr></thead><tbody>${rows||`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--stone)">Sin membresías</td></tr>`}</tbody></table></div></div>`);
 }
 
@@ -519,19 +500,17 @@ async function resolverLic(id,estado){
 /* ── CLASES ── */
 function renderClases(){
   const q=Q.toLowerCase();
-  const fil=CLASES.filter(c=>`${c.nombre} ${c.modalidad||''} ${c.perfiles?.nombre||''}`.toLowerCase().includes(q));
-  const now=new Date().toISOString();
-  const prox=fil.filter(c=>c.fecha_hora>=now);
-  const pas=fil.filter(c=>c.fecha_hora<now);
-  const thead=`<thead><tr><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Modalidad</th><th>Profesor</th><th>Inscritos</th><th>Estado</th><th>Acciones</th></tr></thead>`;
+  const fil=CLASES.filter(c=>`${c.titulo} ${c.tipo||''} ${c.perfiles?.nombre||''}`.toLowerCase().includes(q));
+  const ahora=new Date();
+  const prox=fil.filter(c=>{const dt=claseDateTime(c);return dt&&dt>=ahora});
+  const pas=fil.filter(c=>{const dt=claseDateTime(c);return !dt||dt<ahora});
+  const thead=`<thead><tr><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Instructor</th><th>Capacidad</th><th>Estado</th><th>Acciones</th></tr></thead>`;
   const renderRow=c=>{
-    const f=new Date(c.fecha_hora);
-    const fd=f.toLocaleDateString('es-BO',{weekday:'short',day:'numeric',month:'short'});
-    const fh=f.toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'});
+    const fd=claseFecha(c);
+    const fh=claseHora(c);
     const prof=c.perfiles?`${c.perfiles.nombre} ${c.perfiles.apellido}`:'—';
-    const ins=c.alumnos_inscritos||0;
     const eb={programada:'<span class="badge badge-blue">Programada</span>',en_curso:'<span class="badge badge-green">En curso</span>',completada:'<span class="badge badge-stone">Completada</span>',cancelada:'<span class="badge badge-red">Cancelada</span>'}[c.estado]||`<span class="badge badge-stone">${c.estado||'—'}</span>`;
-    return `<tr><td class="td-name">${c.nombre}</td><td style="color:var(--stone-dark)">${fd}</td><td style="color:var(--gold-muted);font-family:monospace">${fh}</td><td>${c.modalidad||'—'}</td><td>${prof}</td><td>${ins}/${c.capacidad||'—'}</td><td>${eb}</td><td><a onclick="editClase('${c.id}')" style="color:var(--gold-muted);cursor:pointer;font-size:11px;margin-right:6px">Editar</a><a onclick="cancelarClase('${c.id}')" style="color:#a83232;cursor:pointer;font-size:11px">Cancelar</a></td></tr>`;
+    return `<tr><td class="td-name">${c.titulo}</td><td style="color:var(--stone-dark)">${fd}</td><td style="color:var(--gold-muted);font-family:monospace">${fh}</td><td>${c.tipo||'—'}</td><td>${prof}</td><td>${c.capacidad_max||'—'}</td><td>${eb}</td><td><a onclick="editClase('${c.id}')" style="color:var(--gold-muted);cursor:pointer;font-size:11px;margin-right:6px">Editar</a><a onclick="cancelarClase('${c.id}')" style="color:#a83232;cursor:pointer;font-size:11px">Cancelar</a></td></tr>`;
   };
   set(`<div class="search-bar"><input class="search-input" placeholder="Buscar clases…" oninput="Q=this.value;renderClases()" value="${q}"><button class="btn btn-primary" onclick="openNewClase()">+ Nueva clase</button></div>
   ${prox.length?`<div class="card"><div class="card-header"><div class="card-title">Próximas Clases</div><div class="card-actions"><span class="pill">${prox.length}</span></div></div><div class="table-wrap"><table>${thead}<tbody>${prox.slice(0,20).map(renderRow).join('')}</tbody></table></div></div>`:''}
@@ -547,23 +526,18 @@ async function cancelarClase(id){
 /* ── EVALUACIONES ── */
 function renderEvals(){
   const q=Q.toLowerCase();
-  const fil=EVALS.filter(e=>{
-    const nom=e.perfiles?`${e.perfiles.nombre} ${e.perfiles.apellido}`:'';
-    return(nom+(e.tipo||'')).toLowerCase().includes(q);
-  });
+  const fil=EVALS.filter(e=>{const n=e.perfiles?`${e.perfiles.nombre} ${e.perfiles.apellido}`:'';return(n+(e.tipo||'')).toLowerCase().includes(q)});
   const items=fil.map(e=>{
     const nom=e.perfiles?`${e.perfiles.nombre} ${e.perfiles.apellido}`:'—';
     const ini=e.perfiles?(e.perfiles.nombre[0]+e.perfiles.apellido[0]).toUpperCase():'?';
     const fecha=new Date(e.created_at).toLocaleDateString('es-BO',{day:'numeric',month:'long',year:'numeric'});
-    const tieneArchivo=!!e.archivo_url;
     return `<div class="eval-item">
-      <div class="eval-header">
-        <div><div class="eval-alumno"><span class="avatar-xs">${ini}</span>${nom}</div><div class="eval-tipo" style="margin-top:4px;margin-left:34px">${e.tipo||'Evaluación'}</div></div>
-        <div style="text-align:right"><div class="eval-fecha">${fecha}</div>
-        <a onclick="openEditEval('${e.id}')" style="font-size:11px;color:var(--gold-muted);cursor:pointer;margin-top:4px;display:block">Editar</a></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div><div style="font-size:13px;color:var(--charcoal);font-weight:500"><span class="avatar-xs">${ini}</span>${nom}</div><div style="font-size:11px;color:var(--stone-dark);margin-top:4px;margin-left:34px">${e.tipo||'Evaluación'}</div></div>
+        <div style="text-align:right"><div style="font-size:11px;color:var(--stone)">${fecha}</div><a onclick="openEditEval('${e.id}')" style="font-size:11px;color:var(--gold-muted);cursor:pointer;margin-top:4px;display:block">Editar</a></div>
       </div>
       ${e.objetivos?`<div style="font-size:12px;color:var(--stone-dark);font-weight:300;margin-top:8px;line-height:1.5">${e.objetivos.slice(0,100)}${e.objetivos.length>100?'…':''}</div>`:''}
-      ${tieneArchivo?`<div class="eval-archivo">📎 <a href="${e.archivo_url}" target="_blank">Ver archivo adjunto</a></div>`:`<div style="font-size:11px;color:var(--stone);margin-top:8px">Sin archivo adjunto</div>`}
+      ${e.archivo_url?`<div style="margin-top:8px"><a href="${e.archivo_url}" target="_blank" style="font-size:11px;color:var(--gold-muted)">📎 Ver archivo adjunto</a></div>`:`<div style="font-size:11px;color:var(--stone);margin-top:8px">Sin archivo adjunto</div>`}
     </div>`;
   }).join('');
   set(`<div class="search-bar"><input class="search-input" placeholder="Buscar por alumno o tipo…" oninput="Q=this.value;renderEvals()" value="${q}"><button class="btn btn-primary" onclick="openNewEval()">+ Nueva evaluación</button></div>
@@ -572,145 +546,36 @@ function renderEvals(){
 
 /* ── EXPORTAR EXCEL ── */
 function renderExportar(){
-  set(`
-    <div style="max-width:640px">
-      <div class="card" style="margin-bottom:16px">
-        <div class="card-header"><div class="card-title">Exportar datos a Excel</div></div>
-        <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
-          <div style="font-size:13px;color:var(--stone-dark);font-weight:300;line-height:1.6;margin-bottom:8px">
-            Descargá los datos del estudio en formato Excel (.xlsx) para análisis, reportes o respaldo.
-          </div>
-
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm)">
-            <div>
-              <div style="font-size:13px;color:var(--charcoal);font-weight:500">👥 Alumnos</div>
-              <div style="font-size:11px;color:var(--stone-dark);margin-top:2px">Nombre, apellido, teléfono, rol, estado · ${USUARIOS.filter(u=>u.rol==='alumno').length} registros</div>
-            </div>
-            <button class="btn-excel" onclick="exportarAlumnos()">⬇ Descargar</button>
-          </div>
-
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm)">
-            <div>
-              <div style="font-size:13px;color:var(--charcoal);font-weight:500">💳 Membresías</div>
-              <div style="font-size:11px;color:var(--stone-dark);margin-top:2px">Alumno, plan, créditos, estado, vencimiento · ${MEMS.length} registros</div>
-            </div>
-            <button class="btn-excel" onclick="exportarMembresias()">⬇ Descargar</button>
-          </div>
-
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm)">
-            <div>
-              <div style="font-size:13px;color:var(--charcoal);font-weight:500">📅 Clases</div>
-              <div style="font-size:11px;color:var(--stone-dark);margin-top:2px">Nombre, fecha, modalidad, profesor, capacidad · ${CLASES.length} registros</div>
-            </div>
-            <button class="btn-excel" onclick="exportarClases()">⬇ Descargar</button>
-          </div>
-
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm)">
-            <div>
-              <div style="font-size:13px;color:var(--charcoal);font-weight:500">📋 Licencias</div>
-              <div style="font-size:11px;color:var(--stone-dark);margin-top:2px">Alumno, clase, motivo, estado, fecha · ${LICS.length} registros</div>
-            </div>
-            <button class="btn-excel" onclick="exportarLicencias()">⬇ Descargar</button>
-          </div>
-
-          <div style="border-top:1px solid var(--stone-light);padding-top:16px;margin-top:4px">
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--sage-pale);border:1px solid var(--sage-light);border-radius:var(--radius-sm)">
-              <div>
-                <div style="font-size:13px;color:var(--charcoal);font-weight:500">📊 Reporte completo</div>
-                <div style="font-size:11px;color:var(--stone-dark);margin-top:2px">Todas las hojas en un solo archivo Excel</div>
-              </div>
-              <button class="btn-excel" style="background:var(--sage);color:#fff;border-color:var(--sage)" onclick="exportarCompleto()">⬇ Todo en uno</button>
-            </div>
+  set(`<div style="max-width:640px">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Exportar datos a Excel</div></div>
+      <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:13px;color:var(--stone-dark);font-weight:300;line-height:1.6;margin-bottom:8px">Descargá los datos del estudio en formato Excel (.xlsx).</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm)">
+          <div><div style="font-size:13px;color:var(--charcoal);font-weight:500">👥 Alumnos</div><div style="font-size:11px;color:var(--stone-dark);margin-top:2px">${USUARIOS.filter(u=>u.rol==='alumno').length} registros</div></div>
+          <button class="btn-excel" onclick="exportarAlumnos()">⬇ Descargar</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm)">
+          <div><div style="font-size:13px;color:var(--charcoal);font-weight:500">💳 Membresías</div><div style="font-size:11px;color:var(--stone-dark);margin-top:2px">${MEMS.length} registros</div></div>
+          <button class="btn-excel" onclick="exportarMembresias()">⬇ Descargar</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm)">
+          <div><div style="font-size:13px;color:var(--charcoal);font-weight:500">📅 Clases</div><div style="font-size:11px;color:var(--stone-dark);margin-top:2px">${CLASES.length} registros</div></div>
+          <button class="btn-excel" onclick="exportarClases()">⬇ Descargar</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--cream);border:1px solid var(--stone-light);border-radius:var(--radius-sm)">
+          <div><div style="font-size:13px;color:var(--charcoal);font-weight:500">📋 Licencias</div><div style="font-size:11px;color:var(--stone-dark);margin-top:2px">${LICS.length} registros</div></div>
+          <button class="btn-excel" onclick="exportarLicencias()">⬇ Descargar</button>
+        </div>
+        <div style="border-top:1px solid var(--stone-light);padding-top:16px;margin-top:4px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--sage-pale);border:1px solid var(--sage-light);border-radius:var(--radius-sm)">
+            <div><div style="font-size:13px;color:var(--charcoal);font-weight:500">📊 Reporte completo</div><div style="font-size:11px;color:var(--stone-dark);margin-top:2px">Todas las hojas en un solo archivo</div></div>
+            <button class="btn-excel" style="background:var(--sage);color:#fff;border-color:var(--sage)" onclick="exportarCompleto()">⬇ Todo en uno</button>
           </div>
         </div>
       </div>
     </div>
-  `);
-}
-
-/* ── FUNCIONES DE EXPORT ── */
-function exportarAlumnos(){
-  const data=USUARIOS.map(u=>({
-    'Nombre':u.nombre,
-    'Apellido':u.apellido,
-    'Teléfono':u.telefono||'—',
-    'Rol':u.rol,
-    'Estado':u.activo?'Activo':'Inactivo',
-    'Fecha registro':new Date(u.created_at).toLocaleDateString('es-BO'),
-  }));
-  descargarExcel([{nombre:'Alumnos',data}],'lumina_alumnos');
-  toast('✓ Alumnos exportados','success');
-}
-
-function exportarMembresias(){
-  const data=MEMS.map(m=>({
-    'Alumno':m.perfiles?`${m.perfiles.nombre} ${m.perfiles.apellido}`:'—',
-    'Plan':m.planes?.nombre||'—',
-    'Precio (Bs)':m.planes?.precio_bs||'—',
-    'Créditos restantes':(m.creditos_total??0)-(m.creditos_usados??0),
-    'Estado':m.estado,
-    'Fecha inicio':m.fecha_inicio?new Date(m.fecha_inicio).toLocaleDateString('es-BO'):'—',
-    'Fecha fin':m.fecha_fin?new Date(m.fecha_fin).toLocaleDateString('es-BO'):'—',
-  }));
-  descargarExcel([{nombre:'Membresías',data}],'lumina_membresias');
-  toast('✓ Membresías exportadas','success');
-}
-
-function exportarClases(){
-  const data=CLASES.map(c=>({
-    'Nombre':c.nombre,
-    'Fecha':c.fecha_hora?new Date(c.fecha_hora).toLocaleDateString('es-BO'):'—',
-    'Hora':c.fecha_hora?new Date(c.fecha_hora).toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'}):'—',
-    'Modalidad':c.modalidad||'—',
-    'Nivel':c.nivel||'—',
-    'Profesor':c.perfiles?`${c.perfiles.nombre} ${c.perfiles.apellido}`:'Sin asignar',
-    'Capacidad':c.capacidad||'—',
-    'Inscritos':c.alumnos_inscritos||0,
-    'Estado':c.estado||'—',
-  }));
-  descargarExcel([{nombre:'Clases',data}],'lumina_clases');
-  toast('✓ Clases exportadas','success');
-}
-
-function exportarLicencias(){
-  const data=LICS.map(l=>({
-    'Alumno':l.perfiles?`${l.perfiles.nombre} ${l.perfiles.apellido}`:'—',
-    'Fecha clase':l.fecha_clase?new Date(l.fecha_clase).toLocaleDateString('es-BO'):'—',
-    'Motivo':l.motivo||'—',
-    'Estado':l.estado,
-    'Solicitada':new Date(l.created_at).toLocaleDateString('es-BO'),
-  }));
-  descargarExcel([{nombre:'Licencias',data}],'lumina_licencias');
-  toast('✓ Licencias exportadas','success');
-}
-
-function exportarCompleto(){
-  const hojas=[
-    {nombre:'Alumnos',data:USUARIOS.map(u=>({'Nombre':u.nombre,'Apellido':u.apellido,'Teléfono':u.telefono||'—','Rol':u.rol,'Estado':u.activo?'Activo':'Inactivo','Fecha registro':new Date(u.created_at).toLocaleDateString('es-BO')}))},
-    {nombre:'Membresías',data:MEMS.map(m=>({'Alumno':m.perfiles?`${m.perfiles.nombre} ${m.perfiles.apellido}`:'—','Plan':m.planes?.nombre||'—','Créditos restantes':(m.creditos_total??0)-(m.creditos_usados??0),'Estado':m.estado,'Vence':m.fecha_fin?new Date(m.fecha_fin).toLocaleDateString('es-BO'):'—'}))},
-    {nombre:'Clases',data:CLASES.map(c=>({'Nombre':c.nombre,'Fecha':c.fecha_hora?new Date(c.fecha_hora).toLocaleDateString('es-BO'):'—','Hora':c.fecha_hora?new Date(c.fecha_hora).toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'}):'—','Modalidad':c.modalidad||'—','Profesor':c.perfiles?`${c.perfiles.nombre} ${c.perfiles.apellido}`:'Sin asignar','Inscritos':c.alumnos_inscritos||0,'Estado':c.estado||'—'}))},
-    {nombre:'Licencias',data:LICS.map(l=>({'Alumno':l.perfiles?`${l.perfiles.nombre} ${l.perfiles.apellido}`:'—','Fecha clase':l.fecha_clase?new Date(l.fecha_clase).toLocaleDateString('es-BO'):'—','Motivo':l.motivo||'—','Estado':l.estado,'Solicitada':new Date(l.created_at).toLocaleDateString('es-BO')}))},
-  ];
-  descargarExcel(hojas,'lumina_reporte_completo');
-  toast('✓ Reporte completo exportado','success');
-}
-
-function descargarExcel(hojas, nombreArchivo){
-  const wb = XLSX.utils.book_new();
-  hojas.forEach(h=>{
-    if(!h.data.length){
-      const ws=XLSX.utils.aoa_to_sheet([['Sin datos']]);
-      XLSX.utils.book_append_sheet(wb,ws,h.nombre);
-      return;
-    }
-    const ws=XLSX.utils.json_to_sheet(h.data);
-    // Ancho de columnas automático
-    const cols=Object.keys(h.data[0]).map(k=>({wch:Math.max(k.length,12)}));
-    ws['!cols']=cols;
-    XLSX.utils.book_append_sheet(wb,ws,h.nombre);
-  });
-  const fecha=new Date().toISOString().split('T')[0];
-  XLSX.writeFile(wb,`${nombreArchivo}_${fecha}.xlsx`);
+  </div>`);
 }
 
 /* ── PLANES ── */
@@ -722,6 +587,42 @@ async function desactivarPlan(id){
   if(!confirm('¿Desactivar este plan?'))return;
   await sb.from('planes').update({activo:false}).eq('id',id);
   toast('Plan desactivado','info');await loadPlanes();renderPlanes();
+}
+
+/* ── EXPORT FUNCTIONS ── */
+function exportarAlumnos(){
+  const data=USUARIOS.map(u=>({'Nombre':u.nombre,'Apellido':u.apellido,'Teléfono':u.telefono||'—','Rol':u.rol,'Estado':u.activo?'Activo':'Inactivo','Fecha registro':new Date(u.created_at).toLocaleDateString('es-BO')}));
+  descargarExcel([{nombre:'Alumnos',data}],'lumina_alumnos');toast('✓ Alumnos exportados','success');
+}
+function exportarMembresias(){
+  const data=MEMS.map(m=>({'Alumno':m.perfiles?`${m.perfiles.nombre} ${m.perfiles.apellido}`:'—','Plan':m.planes?.nombre||'—','Precio (Bs)':m.planes?.precio_bs||'—','Créditos restantes':(m.creditos_total??0)-(m.creditos_usados??0),'Estado':m.estado,'Fecha inicio':m.fecha_inicio?new Date(m.fecha_inicio).toLocaleDateString('es-BO'):'—','Fecha fin':m.fecha_fin?new Date(m.fecha_fin).toLocaleDateString('es-BO'):'—'}));
+  descargarExcel([{nombre:'Membresías',data}],'lumina_membresias');toast('✓ Membresías exportadas','success');
+}
+function exportarClases(){
+  const data=CLASES.map(c=>({'Nombre':c.titulo,'Fecha':c.fecha||'—','Hora':claseHora(c),'Tipo':c.tipo||'—','Instructor':c.perfiles?`${c.perfiles.nombre} ${c.perfiles.apellido}`:'Sin asignar','Capacidad':c.capacidad_max||'—','Estado':c.estado||'—'}));
+  descargarExcel([{nombre:'Clases',data}],'lumina_clases');toast('✓ Clases exportadas','success');
+}
+function exportarLicencias(){
+  const data=LICS.map(l=>({'Alumno':l.perfiles?`${l.perfiles.nombre} ${l.perfiles.apellido}`:'—','Fecha clase':l.fecha_clase?new Date(l.fecha_clase).toLocaleDateString('es-BO'):'—','Motivo':l.motivo||'—','Estado':l.estado,'Solicitada':new Date(l.created_at).toLocaleDateString('es-BO')}));
+  descargarExcel([{nombre:'Licencias',data}],'lumina_licencias');toast('✓ Licencias exportadas','success');
+}
+function exportarCompleto(){
+  const hojas=[
+    {nombre:'Alumnos',data:USUARIOS.map(u=>({'Nombre':u.nombre,'Apellido':u.apellido,'Teléfono':u.telefono||'—','Rol':u.rol,'Estado':u.activo?'Activo':'Inactivo'}))},
+    {nombre:'Membresías',data:MEMS.map(m=>({'Alumno':m.perfiles?`${m.perfiles.nombre} ${m.perfiles.apellido}`:'—','Plan':m.planes?.nombre||'—','Créditos restantes':(m.creditos_total??0)-(m.creditos_usados??0),'Estado':m.estado,'Vence':m.fecha_fin?new Date(m.fecha_fin).toLocaleDateString('es-BO'):'—'}))},
+    {nombre:'Clases',data:CLASES.map(c=>({'Nombre':c.titulo,'Fecha':c.fecha||'—','Hora':claseHora(c),'Tipo':c.tipo||'—','Instructor':c.perfiles?`${c.perfiles.nombre} ${c.perfiles.apellido}`:'Sin asignar','Estado':c.estado||'—'}))},
+    {nombre:'Licencias',data:LICS.map(l=>({'Alumno':l.perfiles?`${l.perfiles.nombre} ${l.perfiles.apellido}`:'—','Fecha clase':l.fecha_clase?new Date(l.fecha_clase).toLocaleDateString('es-BO'):'—','Motivo':l.motivo||'—','Estado':l.estado}))},
+  ];
+  descargarExcel(hojas,'lumina_reporte_completo');toast('✓ Reporte completo exportado','success');
+}
+function descargarExcel(hojas,nombreArchivo){
+  const wb=XLSX.utils.book_new();
+  hojas.forEach(h=>{
+    const ws=h.data.length?XLSX.utils.json_to_sheet(h.data):XLSX.utils.aoa_to_sheet([['Sin datos']]);
+    if(h.data.length){const cols=Object.keys(h.data[0]).map(k=>({wch:Math.max(k.length,14)}));ws['!cols']=cols;}
+    XLSX.utils.book_append_sheet(wb,ws,h.nombre);
+  });
+  XLSX.writeFile(wb,`${nombreArchivo}_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
 
 /* ── MODALS: USUARIO ── */
@@ -746,7 +647,7 @@ async function guardarUsuario(){
   const id=document.getElementById('u-id').value;
   const payload={nombre:document.getElementById('u-nom').value.trim(),apellido:document.getElementById('u-ape').value.trim(),telefono:document.getElementById('u-tel').value.trim()||null,rol:document.getElementById('u-rol').value,observaciones_medicas:document.getElementById('u-obs').value.trim()||null};
   if(!payload.nombre||!payload.apellido){toast('Nombre y apellido son obligatorios','error');return}
-  if(!id){toast('Para crear usuarios nuevos, registralos desde registro.html y luego editá el perfil aquí.','info');cm('m-usuario');return}
+  if(!id){toast('Para crear usuarios nuevos usá registro.html','info');cm('m-usuario');return}
   const {error}=await sb.from('perfiles').update(payload).eq('id',id);
   if(error){toast('Error: '+error.message,'error');return}
   toast('✓ Usuario guardado','success');cm('m-usuario');await loadUsuarios();renderUsuarios();
@@ -803,9 +704,9 @@ async function toggleEstadoMem(id,est){
 /* ── MODALS: CLASE ── */
 function openNewClase(){
   document.getElementById('m-cl-title').textContent='Nueva Clase';
-  ['cl-id','cl-nom','cl-fecha','cl-desc'].forEach(i=>document.getElementById(i).value='');
+  ['cl-id','cl-nom','cl-fecha','cl-hora','cl-desc'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('cl-cap').value='6';
-  const ps=document.getElementById('cl-prof');
+  const ps=document.getElementById('cl-instructor');
   ps.innerHTML='<option value="">Sin asignar</option>'+USUARIOS.filter(u=>u.rol==='profesor'||u.rol==='admin').map(u=>`<option value="${u.id}">${u.nombre} ${u.apellido}</option>`).join('');
   document.getElementById('m-clase').style.display='flex';
 }
@@ -813,26 +714,35 @@ function editClase(id){
   const c=CLASES.find(x=>x.id===id);if(!c)return;
   document.getElementById('m-cl-title').textContent='Editar Clase';
   document.getElementById('cl-id').value=c.id;
-  document.getElementById('cl-nom').value=c.nombre;
-  document.getElementById('cl-fecha').value=new Date(c.fecha_hora).toISOString().slice(0,16);
-  document.getElementById('cl-cap').value=c.capacidad||6;
-  document.getElementById('cl-mod').value=c.modalidad||'Reformer';
-  document.getElementById('cl-niv').value=c.nivel||'Todos los niveles';
+  document.getElementById('cl-nom').value=c.titulo;
+  document.getElementById('cl-fecha').value=c.fecha||'';
+  document.getElementById('cl-hora').value=c.hora_inicio?.slice(0,5)||'';
+  document.getElementById('cl-cap').value=c.capacidad_max||6;
+  document.getElementById('cl-tipo').value=c.tipo||'reformer';
   document.getElementById('cl-desc').value=c.descripcion||'';
-  const ps=document.getElementById('cl-prof');
-  ps.innerHTML='<option value="">Sin asignar</option>'+USUARIOS.filter(u=>u.rol==='profesor'||u.rol==='admin').map(u=>`<option value="${u.id}" ${u.id===c.profesor_id?'selected':''}>${u.nombre} ${u.apellido}</option>`).join('');
+  const ps=document.getElementById('cl-instructor');
+  ps.innerHTML='<option value="">Sin asignar</option>'+USUARIOS.filter(u=>u.rol==='profesor'||u.rol==='admin').map(u=>`<option value="${u.id}" ${u.id===c.instructor_id?'selected':''}>${u.nombre} ${u.apellido}</option>`).join('');
   document.getElementById('m-clase').style.display='flex';
 }
 async function guardarClase(){
   const id=document.getElementById('cl-id').value;
-  const p={nombre:document.getElementById('cl-nom').value.trim(),fecha_hora:document.getElementById('cl-fecha').value,capacidad:parseInt(document.getElementById('cl-cap').value)||6,modalidad:document.getElementById('cl-mod').value,nivel:document.getElementById('cl-niv').value,descripcion:document.getElementById('cl-desc').value.trim()||null,profesor_id:document.getElementById('cl-prof').value||null,estado:'programada'};
-  if(!p.nombre||!p.fecha_hora){toast('Nombre y fecha son obligatorios','error');return}
+  const p={
+    titulo:document.getElementById('cl-nom').value.trim(),
+    fecha:document.getElementById('cl-fecha').value,
+    hora_inicio:document.getElementById('cl-hora').value,
+    capacidad_max:parseInt(document.getElementById('cl-cap').value)||6,
+    tipo:document.getElementById('cl-tipo').value,
+    descripcion:document.getElementById('cl-desc').value.trim()||null,
+    instructor_id:document.getElementById('cl-instructor').value||null,
+    estado:'programada',
+  };
+  if(!p.titulo||!p.fecha||!p.hora_inicio){toast('Nombre, fecha y hora son obligatorios','error');return}
   const {error}=id?await sb.from('clases').update(p).eq('id',id):await sb.from('clases').insert(p);
   if(error){toast('Error: '+error.message,'error');return}
   toast('✓ Clase guardada','success');cm('m-clase');await loadClases();renderClases();
 }
 
-/* ── MODALS: EVALUACION CON ADJUNTO ── */
+/* ── MODALS: EVALUACION ── */
 function openNewEval(){
   document.getElementById('m-eval-title').textContent='Nueva Evaluación';
   document.getElementById('eval-id').value='';
@@ -843,7 +753,6 @@ function openNewEval(){
   resetUpload();
   document.getElementById('m-eval').style.display='flex';
 }
-
 function openEditEval(id){
   const e=EVALS.find(x=>x.id===id);if(!e)return;
   document.getElementById('m-eval-title').textContent='Editar Evaluación';
@@ -853,106 +762,57 @@ function openEditEval(id){
   document.getElementById('eval-fecha').value=e.fecha||new Date().toISOString().split('T')[0];
   document.getElementById('eval-tipo').value=e.tipo||'inicial';
   document.getElementById('eval-obj').value=e.objetivos||'';
-  document.getElementById('eval-post').value=e.observaciones_posturales||'';
+  document.getElementById('eval-post').value=e.observaciones_posturales||e.observaciones||'';
   document.getElementById('eval-plan').value=e.plan_trabajo||'';
   document.getElementById('eval-notas').value=e.notas||'';
   resetUpload();
-  if(e.archivo_url){
-    document.getElementById('upload-label').textContent='✓ Archivo existente. Subí uno nuevo para reemplazarlo.';
-  }
+  if(e.archivo_url) document.getElementById('upload-label').textContent='✓ Archivo existente. Subí uno nuevo para reemplazarlo.';
   document.getElementById('m-eval').style.display='flex';
 }
-
 async function guardarEval(){
   const aid=document.getElementById('eval-alumno').value;
   if(!aid){toast('Seleccioná un alumno','error');return}
-
   const btn=document.getElementById('btn-guardar-eval');
   btn.disabled=true;btn.textContent='Guardando…';
-
   try{
     let archivo_url=null;
-
-    // Subir archivo si hay uno seleccionado
     if(evalFile){
       const ext=evalFile.name.split('.').pop();
       const path=`evaluaciones/${aid}/${Date.now()}.${ext}`;
       showProgress(30);
-      const {data:up,error:upErr}=await sb.storage.from('evaluaciones').upload(path,evalFile,{upsert:true});
+      const {error:upErr}=await sb.storage.from('evaluaciones').upload(path,evalFile,{upsert:true});
       if(upErr){toast('Error al subir archivo: '+upErr.message,'error');return}
       showProgress(80);
       const {data:url}=sb.storage.from('evaluaciones').getPublicUrl(path);
       archivo_url=url.publicUrl;
       showProgress(100);
     }
-
     const payload={
-      alumno_id:aid,
-      evaluador_id:ADMIN.id,
+      alumno_id:aid,evaluador_id:ADMIN.id,
       fecha:document.getElementById('eval-fecha').value,
-      tipo:document.getElementById('eval-tipo').value||null,
+      tipo:document.getElementById('eval-tipo').value,
       objetivos:document.getElementById('eval-obj').value||null,
       observaciones_posturales:document.getElementById('eval-post').value||null,
       observaciones:document.getElementById('eval-post').value||null,
       plan_trabajo:document.getElementById('eval-plan').value||null,
       notas:document.getElementById('eval-notas').value||null,
     };
-    if(archivo_url) payload.archivo_url=archivo_url;
-
+    if(archivo_url)payload.archivo_url=archivo_url;
     const id=document.getElementById('eval-id').value;
-    const {error}=id
-      ?await sb.from('evaluaciones').update(payload).eq('id',id)
-      :await sb.from('evaluaciones').insert(payload);
-
+    const {error}=id?await sb.from('evaluaciones').update(payload).eq('id',id):await sb.from('evaluaciones').insert(payload);
     if(error){toast('Error: '+error.message,'error');return}
-
-    toast('✓ Evaluación guardada','success');
-    cm('m-eval');
-    await loadEvals();
-    if(CURRENT==='evaluaciones')renderEvals();
-
-  }finally{
-    btn.disabled=false;btn.textContent='Guardar Evaluación';
-    hideProgress();
-  }
+    toast('✓ Evaluación guardada','success');cm('m-eval');await loadEvals();if(CURRENT==='evaluaciones')renderEvals();
+  }finally{btn.disabled=false;btn.textContent='Guardar Evaluación';hideProgress()}
 }
 
 /* ── UPLOAD HELPERS ── */
-function onFileSelect(input){
-  if(input.files[0]) setFile(input.files[0]);
-}
-function onDragOver(e){
-  e.preventDefault();
-  document.getElementById('upload-zone').classList.add('dragover');
-}
-function onDrop(e){
-  e.preventDefault();
-  document.getElementById('upload-zone').classList.remove('dragover');
-  const f=e.dataTransfer.files[0];
-  if(f) setFile(f);
-}
-function setFile(f){
-  if(f.size>5*1024*1024){toast('El archivo supera los 5MB','error');return}
-  evalFile=f;
-  document.getElementById('upload-label').textContent=`📎 ${f.name} (${(f.size/1024).toFixed(0)} KB)`;
-  document.getElementById('upload-zone').style.borderColor='var(--sage)';
-}
-function resetUpload(){
-  evalFile=null;
-  document.getElementById('eval-file').value='';
-  document.getElementById('upload-label').textContent='Hacé clic o arrastrá un archivo aquí';
-  document.getElementById('upload-zone').style.borderColor='';
-  hideProgress();
-}
-function showProgress(pct){
-  const el=document.getElementById('upload-progress');
-  el.classList.add('visible');
-  document.getElementById('upload-progress-fill').style.width=pct+'%';
-}
-function hideProgress(){
-  document.getElementById('upload-progress').classList.remove('visible');
-  document.getElementById('upload-progress-fill').style.width='0%';
-}
+function onFileSelect(input){if(input.files[0])setFile(input.files[0])}
+function onDragOver(e){e.preventDefault();document.getElementById('upload-zone').classList.add('dragover')}
+function onDrop(e){e.preventDefault();document.getElementById('upload-zone').classList.remove('dragover');const f=e.dataTransfer.files[0];if(f)setFile(f)}
+function setFile(f){if(f.size>5*1024*1024){toast('El archivo supera los 5MB','error');return}evalFile=f;document.getElementById('upload-label').textContent=`📎 ${f.name} (${(f.size/1024).toFixed(0)} KB)`;document.getElementById('upload-zone').style.borderColor='var(--sage)'}
+function resetUpload(){evalFile=null;document.getElementById('eval-file').value='';document.getElementById('upload-label').textContent='Hacé clic o arrastrá un archivo aquí';document.getElementById('upload-zone').style.borderColor='';hideProgress()}
+function showProgress(pct){document.getElementById('upload-progress').classList.add('visible');document.getElementById('upload-progress-fill').style.width=pct+'%'}
+function hideProgress(){document.getElementById('upload-progress').classList.remove('visible');document.getElementById('upload-progress-fill').style.width='0%'}
 
 /* ── HELPERS ── */
 function set(html){document.getElementById('main-content').innerHTML=html}
